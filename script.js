@@ -4,35 +4,64 @@
   const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
   const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  /* ---------- EEG trace under the title: a burst that settles ---------- */
-  const eeg = $('#eeg');
-  if (eeg) {
-    let seed = 7;
+  /* ---------- live EEG trace: scrolls like a monitor, ripples under cursor/touch ---------- */
+  const eegWrap = $('#eeg-wrap'), eegSvg = $('#eeg'), eegPath = $('#eeg-path');
+  if (eegWrap && eegPath) {
+    const W = 760, H = 70, MID = 35, N = 380;
+    let seed = 11;
     const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
-    const W = 560, mid = 23, n = 280;
-    const pts = [];
-    for (let i = 0; i <= n; i++) {
-      const x = (i / n) * W, u = i / n;
-      // amplitude envelope: low, spike-wave burst around u≈0.32, then calm
-      const burst = Math.exp(-Math.pow((u - 0.32) / 0.085, 2));
-      const base = 2.2 + 1.2 * Math.sin(u * 40);
-      let y = Math.sin(u * 95 + rnd() * 0.6) * base * (1 - burst) * (u > 0.55 ? 0.45 : 1);
-      if (burst > 0.04) y += (i % 7 < 2 ? -1 : 0.55) * 19 * burst + (rnd() - 0.5) * 4 * burst;
-      y += (rnd() - 0.5) * 1.6 * (u > 0.55 ? 0.4 : 1);
-      pts.push([x, mid + y]);
-    }
-    const split = Math.round(n * 0.55);
-    const toD = (a) => a.map((p, i) => (i ? 'L' : 'M') + p[0].toFixed(1) + ' ' + p[1].toFixed(1)).join('');
-    const ns = 'http://www.w3.org/2000/svg';
-    const p1 = document.createElementNS(ns, 'path'); p1.setAttribute('d', toD(pts.slice(0, split + 1)));
-    const p2 = document.createElementNS(ns, 'path'); p2.setAttribute('d', toD(pts.slice(split))); p2.setAttribute('class', 'calm');
-    eeg.append(p1, p2);
-    if (!reduce) {
-      [p1, p2].forEach((p, k) => {
-        const L = p.getTotalLength();
-        p.style.strokeDasharray = L; p.style.strokeDashoffset = L;
-        p.animate([{ strokeDashoffset: L }, { strokeDashoffset: 0 }], { duration: k ? 1100 : 1300, delay: k ? 1450 : 250, easing: 'cubic-bezier(.4,.1,.2,1)', fill: 'forwards' });
+    const noise = Array.from({ length: N + 1 }, () => rnd() - 0.5);
+    const ripples = [];
+    const signal = (i, t) => {
+      const x = (i / N) * W, u = i / N;
+      // calm background rhythm drifting left
+      let y = 2.6 * Math.sin(2 * Math.PI * (u * 9 + t * 0.32)) + 0.9 * Math.sin(2 * Math.PI * (u * 27 + t * 0.9)) + noise[(i + Math.floor(t * 12)) % (N + 1)] * 0.7;
+      // spike-and-wave burst on the left half, gently breathing
+      const env = Math.exp(-Math.pow((u - 0.29) / 0.11, 2)) * (0.85 + 0.15 * Math.sin(t * 0.9));
+      if (env > 0.01) {
+        const ph = 2 * Math.PI * (x / 34 + t * 0.9);
+        y += env * (-26 * Math.pow(Math.max(0, Math.sin(ph)), 14) + 7 * Math.sin(ph - 1.3));
+      }
+      if (u > 0.55) y *= 0.55; // settled (teal) side
+      // travelling ripples from pointer/touch
+      for (const r of ripples) {
+        const age = t - r.t0, d = Math.abs(x - r.x) - age * 240;
+        y += r.a * Math.exp(-age * 1.6) * Math.exp(-(d * d) / 500) * Math.sin(d / 4.2);
+      }
+      return MID + y;
+    };
+    const draw = (t) => {
+      let d = '';
+      for (let i = 0; i <= N; i++) d += (i ? 'L' : 'M') + ((i / N) * W).toFixed(1) + ' ' + signal(i, t).toFixed(1);
+      eegPath.setAttribute('d', d);
+    };
+    if (reduce) { draw(0); }
+    else {
+      let running = false, t0 = performance.now(), visible = true;
+      const loop = (now) => {
+        const t = (now - t0) / 1000;
+        while (ripples.length && t - ripples[0].t0 > 3.5) ripples.shift();
+        draw(t);
+        if (visible && !document.hidden) requestAnimationFrame(loop); else running = false;
+      };
+      const start = () => { if (!running) { running = true; requestAnimationFrame(loop); } };
+      if ('IntersectionObserver' in window) new IntersectionObserver(([e]) => { visible = e.isIntersecting; if (visible) start(); }).observe(eegWrap);
+      document.addEventListener('visibilitychange', () => { if (!document.hidden) start(); });
+      const toX = (ev) => { const r = eegSvg.getBoundingClientRect(); return ((ev.clientX - r.left) / r.width) * W; };
+      let lastX = null, lastT = 0;
+      eegWrap.addEventListener('pointermove', (ev) => {
+        const now = (performance.now() - t0) / 1000, x = toX(ev);
+        if (lastX === null || Math.abs(x - lastX) > 26 || now - lastT > 0.25) {
+          ripples.push({ x, t0: now, a: 7 }); lastX = x; lastT = now;
+          if (ripples.length > 24) ripples.shift();
+        }
       });
+      eegWrap.addEventListener('pointerleave', () => { lastX = null; });
+      eegWrap.addEventListener('pointerdown', (ev) => {
+        ripples.push({ x: toX(ev), t0: (performance.now() - t0) / 1000, a: 17 });
+        eegWrap.classList.add('touched');
+      });
+      start();
     }
   }
 
@@ -50,7 +79,11 @@
   }
 
   /* ---------- bar widths (no scroll-triggered hiding) ---------- */
-  $$('.cmp .track i').forEach(i => { i.style.width = (parseFloat(i.dataset.w) || 0) + '%'; });
+  // per card: the largest bar fills 88% of the track; zero-based, so ratios between bars are exact
+  $$('.cmp').forEach(card => {
+    const bars = $$('.track i', card), max = Math.max(...bars.map(i => parseFloat(i.dataset.w) || 0)) || 1;
+    bars.forEach(i => { i.style.width = ((parseFloat(i.dataset.w) || 0) / max * 88).toFixed(2) + '%'; });
+  });
 
   /* ---------- highlight drug names inside artifacts ---------- */
   const drugs = /\b(carbamazepine|clobazam|clonazepam|ethosuximide|lamotrigine|levetiracetam|phenobarbital|phenytoin|topiramate|valproate|oxcarbazepine|keppra|depakote)\b/gi;
