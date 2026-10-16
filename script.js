@@ -363,23 +363,13 @@
     setStage(0);
 
     const desktop = window.matchMedia('(min-width: 901px)');
-    // desktop: the step nearest the middle of the screen drives the diagram
-    if ('IntersectionObserver' in window) {
-      const io = new IntersectionObserver((es) => {
-        if (!desktop.matches) return;
-        es.forEach(e => { if (e.isIntersecting) setStage(+e.target.dataset.step); });
-      }, { rootMargin: '-45% 0px -50% 0px' });
-      steps.forEach(s => io.observe(s));
-    }
-    steps.forEach(s => s.addEventListener('click', () => s.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'center' })));
-
-    // phones: plays like a short video
+    // plays like a short video on every screen
     let playing = !reduce, timer = 0, onScreen = false;
     const play = $('#hiw-play');
     const tick = () => {
       clearTimeout(timer);
       play.textContent = playing ? 'Pause' : 'Play';
-      if (!playing || desktop.matches || !onScreen) return;
+      if (!playing || !onScreen) return;
       timer = setTimeout(() => {
         setStage((cur + 1) % N);
         if (cur === 0) setMode(hiw.classList.contains('mode-multi') ? 'single' : 'multi');
