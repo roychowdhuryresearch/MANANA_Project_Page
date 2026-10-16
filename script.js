@@ -331,7 +331,29 @@
       steps.forEach((s, k) => s.classList.toggle('on', k === i));
       dots.forEach((d, k) => { d.classList.toggle('on', k === i); d.classList.toggle('done', k < i); });
       cap.innerHTML = `<h3>${i + 1}. ${steps[i].querySelector('h3').textContent}</h3><p>${steps[i].querySelector('p').innerHTML}</p>`;
+      frame();
     };
+    // phones: pan/zoom the diagram to the active part so text stays legible
+    const svgEl = $('.hiw-svg', hiw);
+    const FULL = [0, 0, 760, 520];
+    const CAM = [[190, 165, 420], [300, 112, 400], [540, 140, 420], [600, 236, 360], [340, 262, 650], [455, 380, 590]];
+    let vb = FULL.slice(), camRaf = 0;
+    const setVB = (b) => { vb = b; svgEl.setAttribute('viewBox', b.map(v => v.toFixed(1)).join(' ')); };
+    function frame() {
+      if (!svgEl) return;
+      const phone = !window.matchMedia('(min-width: 901px)').matches;
+      let target = FULL;
+      if (phone) { const [cx, cy, w] = CAM[cur]; const h = w * 0.8; target = [cx - w / 2, cy - h / 2, w, h]; }
+      cancelAnimationFrame(camRaf);
+      if (reduce) { setVB(target); return; }
+      const from = vb.slice(), t0 = performance.now(), D = 900;
+      const step = (now) => {
+        const t = Math.min(1, (now - t0) / D), e = t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+        setVB(from.map((v, k) => v + (target[k] - v) * e));
+        if (t < 1) camRaf = requestAnimationFrame(step);
+      };
+      camRaf = requestAnimationFrame(step);
+    }
     const setMode = (m) => {
       hiw.classList.toggle('mode-single', m === 'single'); hiw.classList.toggle('mode-multi', m === 'multi');
       $$('[data-mode]', hiw).forEach(b => b.setAttribute('aria-pressed', b.dataset.mode === m));
@@ -371,7 +393,7 @@
     if ('IntersectionObserver' in window) {
       new IntersectionObserver(([e]) => { onScreen = e.isIntersecting; tick(); }, { threshold: 0.35 }).observe($('.hiw-sticky', hiw));
     }
-    desktop.addEventListener('change', tick);
+    desktop.addEventListener('change', () => { frame(); tick(); });
   }
 
   /* ---------- map: Africa → Uganda zoom ---------- */

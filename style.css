@@ -741,7 +741,7 @@ footer { font-size: 16px; }
 .hiw-svg .ns.left { text-anchor: start; font-size: 12px; }
 .hiw-svg .e { fill: none; stroke: #d6cfc2; stroke-width: 2; marker-end: url(#ah); transition: stroke .3s; }
 .hiw-svg .elab { font-size: 11px; font-style: italic; fill: var(--muted); }
-.hiw-svg :is(.n, .cands, .rx, .buf, .dep, .elab)[data-s] { opacity: .28; transition: opacity .45s; }
+.hiw-svg :is(.n, .cands, .rx, .buf, .dep, .elab)[data-s] { opacity: .36; transition: opacity .45s; }
 .hiw-svg .cands rect { fill: var(--teal-soft); stroke: var(--teal); stroke-width: 1; }
 .hiw-svg .cands text { font-size: 10px; font-weight: 600; fill: var(--teal-ink); text-anchor: middle; }
 .hiw-svg .rx rect { fill: var(--ink); }
@@ -820,4 +820,8 @@ footer { font-size: 16px; }
 @media (prefers-reduced-motion: reduce) {
   .hiw .hiw-svg .e { animation: none !important; }
   .hiw .hiw-svg .bars :is(.b1, .b2, .b3) { animation: none !important; }
+}
+
+@media (max-width: 900px) {
+  .hiw-svg { aspect-ratio: 5 / 4; }
 }
