@@ -578,3 +578,10 @@ footer { font-size: 16px; }
 .authors sup .eqm { color: var(--accent); font-weight: 600; font-size: 1em; }
 .eq { margin-top: 6px; font-size: 15px; color: var(--muted); }
 .eq .eqm { color: var(--accent); font-weight: 600; margin-right: 2px; }
+
+/* ===== abstract: PANINI-style centered column ===== */
+.abstract { width: min(780px, 100% - 32px); padding-top: 64px; }
+.abs-title { text-align: center; font-size: 32px; font-weight: 600; letter-spacing: -0.02em; margin: 0 0 18px; }
+.abstract p { font-size: 17px; line-height: 1.72; color: #4a4a4a; text-align: justify; hyphens: auto; -webkit-hyphens: auto; margin: 0; }
+.abstract p b { color: #2a2a2a; font-weight: 600; }
+@media (max-width: 560px) { .abstract p { font-size: 16.5px; text-align: left; } .abs-title { font-size: 28px; } }

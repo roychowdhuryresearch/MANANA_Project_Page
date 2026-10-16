@@ -38,7 +38,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300..800&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=11">
+<link rel="stylesheet" href="style.css?v=12">
 <script>
   document.documentElement.classList.add('js');
 </script>
@@ -117,8 +117,7 @@
 </section>
 
 <section class="container sec abstract" aria-labelledby="abstract-title">
-  <p class="kicker reveal">Abstract</p>
-  <h2 id="abstract-title" hidden>Abstract</h2>
+  <h2 id="abstract-title" class="abs-title">Abstract</h2>
   <div class="reveal">
     <p>Specialist epilepsy expertise is scarce in resource-constrained settings, creating a pressing need for decision-support tools that help frontline clinicians manage longitudinal treatment. Such systems must adapt to local prescribing practices and recognize when specialist review is needed. Most public medical AI benchmarks focus on high-income clinical settings, leaving prescribing practices, medication availability, and follow-up patterns in low-resource contexts largely unrepresented. We study this problem through a multidisciplinary collaboration focused on pediatric epilepsy care in Uganda. The task is to predict anti-seizure medication regimens from longitudinal unstructured notes collected by local clinicians across serial visits. General-purpose language models achieve non-trivial agreement with physician prescriptions, but neurologists' review of model reasoning traces shows that their errors reflect Western prescribing defaults that do not account for local clinical practices. We introduce <b>Manana</b>, a <b>non-parametric prompt-learning framework</b> that learns how to reason about local prescribing decisions from a small patient-level training set. Manana turns observed prescription errors into an auditable prompt memory, instantiated in single-agent and multi-agent variants, and outperforms classical ML models, direct LLM prompting, and prompt-optimization baselines across two independently collected Ugandan cohorts. The sequence of prompts produced during learning also provides a basis for estimating uncertainty. We exploit this through <b>Bayesian prompt averaging (BPA)</b>, which combines predictions across the learned prompt trajectory to produce prescription likelihoods and a deferral signal. Using the same Manana-Multi trajectory, BPA improves top-1 physician-regimen agreement from 66% to 70% on Cohort&nbsp;A and from 73% to 75% on Cohort&nbsp;B while preserving top-3 coverage. More consequentially, it enables clinically meaningful selective prediction: the system can auto-handle the most confident half of cases at <b>95% precision</b>, or the most confident quarter at <b>99% precision</b>, while deferring lower-confidence cases for specialist review. These results suggest a path toward locally adapted clinical LLM systems that learn from limited site-specific data and reserve scarce specialist attention for the cases where uncertainty is highest.</p>
   </div>
