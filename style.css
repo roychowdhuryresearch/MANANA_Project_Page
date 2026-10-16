@@ -854,3 +854,4 @@ footer { font-size: 16px; }
 }
 @media (max-width: 900px) { .hiw-dots { gap: 4px; } .hiw-dots i { width: 16px; height: 4px; } }
 .hiw-top { flex-wrap: wrap; }
+.agent .nm, .spec-n { overflow-wrap: anywhere; } .artifact, .agent { min-width: 0; }
