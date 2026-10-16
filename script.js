@@ -141,18 +141,21 @@
     ],
   };
   const tbody = $('#main-table tbody');
+  const COLS = [0, 2, 3, 5]; // Mono V1, Mono V3, Poly V1, Poly V3
   const renderTable = (c) => {
-    const rows = T[c];
-    const best = [0, 1, 2, 3, 4, 5].map(j => Math.max(...rows.filter(r => r[1]).map(r => (r[1][j] ? r[1][j][0] : -1))));
+    const DROP = new Set(['EpiPick', 'XGBoost', 'ExpeL']);
+    const rows = T[c].filter(r => r[1] && !DROP.has(r[0]));
+    const best = COLS.map(j => Math.max(...rows.map(r => (r[1][j] ? r[1][j][0] : -1))));
+    let firstOurs = true;
     tbody.innerHTML = rows.map(r => {
-      if (!r[1]) return `<tr class="cat"><td colspan="7">${r[0]}</td></tr>`;
-      const cells = r[1].map((v, j) => {
-        if (!v) return '<td style="color:var(--muted)">—</td>';
-        const isBest = v[0] === best[j];
-        const sd = v[1] !== undefined ? `<span class="sd">±${v[1].toFixed(1)}</span>` : '';
-        return `<td class="${isBest ? 'best' : ''}"><span class="v">${v[0].toFixed(1)}${sd}</span><span class="bar"><i style="width:${v[0]}%"></i></span></td>`;
+      const cells = COLS.map((j, k) => {
+        const v = r[1][j];
+        if (!v) return '<td class="na">—</td>';
+        return `<td class="${v[0] === best[k] ? 'best' : ''}"><span class="v">${v[0].toFixed(1)}</span></td>`;
       }).join('');
-      return `<tr class="${r[2] ? 'ours' : ''}"><td>${r[0]}</td>${cells}</tr>`;
+      const cls = r[2] ? ('ours' + (firstOurs ? ' first' : '')) : '';
+      if (r[2]) firstOurs = false;
+      return `<tr class="${cls}"><td>${r[0]}</td>${cells}</tr>`;
     }).join('');
   };
   if (tbody) {
@@ -162,6 +165,64 @@
       renderTable(b.dataset.cohort);
     }));
   }
+
+  /* ---------- native SVG charts ---------- */
+  // Curves read from the vector paths of the paper's BPA figure (figs/bpa_uncertainty_compact.pdf);
+  // they agree with Table 3 (e.g. Multi, Cohort B: 98.9% at 75% deferral, 94.6% at 50%).
+  const DEFER_X = Array.from({ length: 21 }, (_, i) => i * 5);
+  const DEFER = {
+    A: { Multi: [70.2, 72.5, 75.0, 76.7, 78.9, 81.5, 83.0, 85.2, 86.4, 87.2, 89.8, 92.5, 93.4, 94.3, 95.0, 96.5, 97.5, 97.5, 97.5, 97.5, 100],
+         Single: [68.1, 70.5, 72.5, 75.3, 77.5, 79.8, 82.5, 84.0, 87.7, 88.8, 90.3, 90.8, 91.9, 92.9, 93.3, 94.0, 95.6, 96.7, 96.3, 97.5, 100] },
+    B: { Multi: [75.1, 77.1, 79.5, 82.0, 83.4, 85.5, 87.3, 89.2, 90.9, 92.2, 94.6, 95.3, 96.4, 97.4, 98.1, 98.9, 98.9, 99.5, 100, 100, 100],
+         Single: [68.5, 71.0, 73.1, 75.4, 77.2, 79.2, 81.6, 84.1, 86.1, 88.1, 90.9, 91.3, 93.2, 95.3, 96.0, 96.3, 96.4, 97.6, 97.2, 94.3, 100] },
+  };
+  const REL_X = [0.25, 0.35, 0.45, 0.55, 0.65, 0.75, 0.85, 0.95];
+  const REL = {
+    A: { Multi: [28.6, 25.0, 31.1, 46.7, 46.8, 60.6, 76.3, 94.4], Single: [16.7, 20.0, 30.9, 40.8, 51.4, 63.3, 86.7, 95.0] },
+    B: { Multi: [30.0, 35.3, 37.2, 50.5, 57.0, 65.4, 80.4, 96.5], Single: [16.7, 24.2, 40.3, 45.9, 52.8, 69.8, 86.3, 96.5] },
+  };
+  const NS = 'http://www.w3.org/2000/svg';
+  const el = (tag, attrs = {}, parent) => {
+    const n = document.createElementNS(NS, tag);
+    for (const k in attrs) n.setAttribute(k, attrs[k]);
+    if (parent) parent.append(n);
+    return n;
+  };
+  const chart = (host, o) => {
+    host.innerHTML = '';
+    const W = o.w, H = o.h, m = { t: 12, r: 14, b: 40, l: 44 };
+    const sx = v => m.l + (v - o.x[0]) / (o.x[1] - o.x[0]) * (W - m.l - m.r);
+    const sy = v => H - m.b - (v - o.y[0]) / (o.y[1] - o.y[0]) * (H - m.t - m.b);
+    const svg = el('svg', { viewBox: `0 0 ${W} ${H}`, preserveAspectRatio: 'xMidYMid meet' }, host);
+    const g = el('g', { class: 'axis' }, svg);
+    o.yt.forEach(v => { el('line', { x1: m.l, x2: W - m.r, y1: sy(v), y2: sy(v), class: 'grid' }, g); const t = el('text', { x: m.l - 8, y: sy(v) + 4, 'text-anchor': 'end' }, g); t.textContent = o.yf ? o.yf(v) : v; });
+    o.xt.forEach(v => { const t = el('text', { x: sx(v), y: H - m.b + 18, 'text-anchor': 'middle' }, g); t.textContent = o.xf ? o.xf(v) : v; });
+    el('line', { x1: m.l, x2: W - m.r, y1: H - m.b, y2: H - m.b, class: 'base' }, g);
+    const xl = el('text', { x: m.l + (W - m.l - m.r) / 2, y: H - 4, 'text-anchor': 'middle', class: 'lab' }, g); xl.textContent = o.xl;
+    if (W >= 420) { const yl = el('text', { x: 12, y: m.t + (H - m.t - m.b) / 2, 'text-anchor': 'middle', class: 'lab', transform: `rotate(-90 12 ${m.t + (H - m.t - m.b) / 2})` }, g); yl.textContent = o.yl; }
+    if (o.diag) el('line', { x1: sx(o.x[0]), y1: sy(o.y[0]), x2: sx(o.x[1]), y2: sy(o.y[1]), class: 'diag' }, svg);
+    o.series.forEach(se => {
+      const d = se.xs.map((x, i) => (i ? 'L' : 'M') + sx(x).toFixed(1) + ' ' + sy(se.ys[i]).toFixed(1)).join('');
+      el('path', { d, class: 'ser ' + se.cls }, svg);
+      if (se.dots) se.xs.forEach((x, i) => el('circle', { cx: sx(x), cy: sy(se.ys[i]), r: 3.4, class: 'pt ' + se.cls }, svg));
+    });
+    return { svg, sx, sy, m, W, H };
+  };
+
+  // reliability diagrams (drawn at real pixel width so labels stay legible)
+  const drawRel = () => ['A', 'B'].forEach(c => {
+    const host = document.getElementById('rel-' + c);
+    if (!host) return;
+    const w = Math.max(280, Math.min(380, host.clientWidth || 360));
+    chart(host, {
+      w, h: Math.round(w * 0.86), x: [0, 1], y: [0, 100], xt: [0, 0.2, 0.4, 0.6, 0.8, 1], yt: [0, 20, 40, 60, 80, 100],
+      xf: v => v.toFixed(1), xl: 'BPA confidence', yl: 'Agreement (%)', diag: true,
+      series: [{ xs: REL_X, ys: REL[c].Single, cls: 'single', dots: true }, { xs: REL_X, ys: REL[c].Multi, cls: 'multi', dots: true }],
+    });
+  });
+  drawRel();
+  let redraw = [drawRel];
+  let rt; window.addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(() => redraw.forEach(f => f()), 150); });
 
   /* ---------- deferral explorer (camera-ready Table 3) ---------- */
   const OPS = [
@@ -173,10 +234,8 @@
     { id: 'all', label: 'Handle every case', A: [70, 100], B: [75, 100] },
   ];
   const state = { c: 'B', op: 'q50' };
-  const ops = $('#ops'), waffle = $('#waffle');
-  if (ops && waffle) {
-    for (let i = 0; i < 100; i++) waffle.append(document.createElement('i'));
-    const cells = $$('i', waffle);
+  const ops = $('#ops'), dhost = $('#defer-chart');
+  if (ops && dhost) {
     const draw = () => {
       const o = OPS.find(x => x.id === state.op); const [p, cov] = o[state.c];
       $$('button', ops).forEach(b => {
@@ -187,12 +246,43 @@
       });
       $('#d-prec').textContent = p + '%';
       $('#d-cov').textContent = cov + '%';
-      const handled = Math.round(cov), ok = Math.round(cov * p / 100), miss = handled - ok;
-      cells.forEach((el, i) => { el.className = i < ok ? 'ok' : i < handled ? 'miss' : ''; });
-      const deferred = 100 - handled;
+      const deferred = 100 - cov;
       $('#d-sentence').textContent = deferred
-        ? `Of every 100 visits in Cohort ${state.c}, the system handles about ${handled} and agrees with the physician on about ${ok}. The other ${deferred} go to a specialist.`
-        : `Without deferral, the system handles all 100 visits in Cohort ${state.c} and agrees with the physician's top choice on about ${ok}.`;
+        ? `Cohort ${state.c}: the system handles ${cov}% of visits at ${p}% top-1 agreement and defers ${deferred}% to a specialist.`
+        : `Cohort ${state.c}: without deferral, top-1 agreement is ${p}%.`;
+
+      const dw = Math.max(280, dhost.clientWidth || 560);
+      const c = chart(dhost, {
+        w: dw, h: Math.round(Math.max(230, Math.min(320, dw * 0.56))), x: [0, 100], y: [60, 100], xt: [0, 25, 50, 75, 100], yt: [60, 70, 80, 90, 100],
+        xf: v => v + '%', yf: v => v + '%', xl: 'Deferred to specialist', yl: 'Top-1 agreement',
+        series: [{ xs: DEFER_X, ys: DEFER[state.c].Single, cls: 'single' }, { xs: DEFER_X, ys: DEFER[state.c].Multi, cls: 'multi' }],
+      });
+      const mx = c.sx(deferred), my = c.sy(p);
+      el('line', { x1: mx, x2: mx, y1: c.m.t, y2: c.H - c.m.b, class: 'mark-rule' }, c.svg);
+      el('circle', { cx: mx, cy: my, r: 7, class: 'mark' }, c.svg);
+      const lab = el('text', { x: mx + (deferred > 70 ? -12 : 12), y: my + (my < 40 ? 18 : -10), 'text-anchor': deferred > 70 ? 'end' : 'start', class: 'mark-lab' }, c.svg);
+      lab.textContent = `${p}% · defer ${deferred}%`;
+
+      // hover readout
+      const guide = el('line', { y1: c.m.t, y2: c.H - c.m.b, class: 'hover-rule', visibility: 'hidden' }, c.svg);
+      const tip = el('g', { class: 'tip', visibility: 'hidden' }, c.svg);
+      const tb = el('rect', { rx: 6, height: 44, width: 150 }, tip);
+      const t1 = el('text', { x: 10, y: 18 }, tip), t2 = el('text', { x: 10, y: 34 }, tip);
+      const ov = el('rect', { x: c.m.l, y: c.m.t, width: c.W - c.m.l - c.m.r, height: c.H - c.m.t - c.m.b, fill: 'transparent' }, c.svg);
+      const move = (ev) => {
+        const pt = c.svg.createSVGPoint(); pt.x = ev.clientX; pt.y = ev.clientY;
+        const q = pt.matrixTransform(c.svg.getScreenCTM().inverse());
+        const i = Math.max(0, Math.min(20, Math.round(((q.x - c.m.l) / (c.W - c.m.l - c.m.r)) * 20)));
+        const x = c.sx(DEFER_X[i]);
+        guide.setAttribute('x1', x); guide.setAttribute('x2', x); guide.setAttribute('visibility', 'visible');
+        t1.textContent = `Defer ${DEFER_X[i]}%`;
+        t2.textContent = `Multi ${DEFER[state.c].Multi[i].toFixed(1)}% · Single ${DEFER[state.c].Single[i].toFixed(1)}%`;
+        const w = Math.max(t1.getComputedTextLength(), t2.getComputedTextLength()) + 20; tb.setAttribute('width', w);
+        const tx = x + 10 + w > c.W - c.m.r ? x - 10 - w : x + 10;
+        tip.setAttribute('transform', `translate(${tx} ${c.H - c.m.b - 56})`); tip.setAttribute('visibility', 'visible');
+      };
+      ov.addEventListener('pointermove', move);
+      ov.addEventListener('pointerleave', () => { guide.setAttribute('visibility', 'hidden'); tip.setAttribute('visibility', 'hidden'); });
     };
     ops.innerHTML = OPS.map(o => `<button type="button" data-op="${o.id}" aria-pressed="false"><span>${o.label}</span><span class="p"></span><span class="c"></span></button>`).join('');
     $$('button', ops).forEach(b => b.addEventListener('click', () => { state.op = b.dataset.op; draw(); }));
@@ -201,6 +291,7 @@
       state.c = b.dataset.dcohort; draw();
     }));
     draw();
+    redraw.push(draw);
   }
 
   /* ---------- BibTeX copy ---------- */
@@ -215,13 +306,4 @@
     copy.textContent = 'Copied'; setTimeout(() => (copy.textContent = 'Copy'), 1600);
   });
 
-  /* ---------- theme toggle ---------- */
-  const tt = $('#theme-toggle');
-  if (tt) tt.addEventListener('click', () => {
-    const root = document.documentElement;
-    const cur = root.getAttribute('data-theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-    const next = cur === 'dark' ? 'light' : 'dark';
-    root.setAttribute('data-theme', next);
-    try { localStorage.setItem('manana-theme', next); } catch (e) {}
-  });
 })();

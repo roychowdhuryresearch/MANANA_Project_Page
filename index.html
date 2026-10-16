@@ -37,8 +37,8 @@
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;1,6..72,300;1,6..72,400&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=4">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300..800&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css?v=7">
 <script>
   document.documentElement.classList.add('js');
 </script>
@@ -280,13 +280,13 @@ any information that is not needed for the decision.
       <button type="button" data-cohort="A" aria-pressed="true">Cohort A</button>
       <button type="button" data-cohort="B" aria-pressed="false">Cohort B</button>
     </div>
-    <span class="note">EM@3 (%), mean ± std over 5 seeds</span>
+    <span class="note">EM@3 (%), mean of 5 seeds · selected baselines; full table in the paper</span>
   </div>
   <div class="table-wrap reveal">
     <table id="main-table">
       <thead>
-        <tr class="grp"><th></th><th colspan="3" class="lined">Monotherapy</th><th colspan="3" class="lined">Polytherapy</th></tr>
-        <tr><th>Method</th><th>V1</th><th>V2</th><th>V3</th><th>V1</th><th>V2</th><th>V3</th></tr>
+        <tr class="grp"><th></th><th colspan="2" class="lined">Monotherapy</th><th colspan="2" class="lined">Polytherapy</th></tr>
+        <tr><th>Method</th><th>Visit 1</th><th>Visit 3</th><th>Visit 1</th><th>Visit 3</th></tr>
       </thead>
       <tbody></tbody>
     </table>
@@ -318,16 +318,20 @@ any information that is not needed for the decision.
         <div class="r prec"><div class="v" id="d-prec">95%</div><div class="k">top-1 agreement with the physician on visits the system handles</div></div>
         <div class="r"><div class="v" id="d-cov">50%</div><div class="k">of visits handled; the rest go to specialist review</div></div>
       </div>
-      <div style="margin:20px 0 6px" aria-hidden="true"><div class="waffle" id="waffle"></div></div>
-      <div class="wlegend" aria-hidden="true"><span><i class="ok"></i>handled, agrees</span><span><i class="miss"></i>handled, disagrees</span><span><i class="df"></i>deferred to specialist</span></div>
-      <p class="sentence" id="d-sentence" style="margin-top:16px" aria-live="polite"></p>
+      <div class="chart" id="defer-chart" role="img" aria-label="Deferral rate versus top-1 precision"></div>
+      <div class="clegend"><span><i class="ln multi"></i>Manana-Multi</span><span><i class="ln single"></i>Manana-Single</span><span><i class="dot"></i>selected operating point</span></div>
+      <p class="sentence" id="d-sentence" aria-live="polite"></p>
     </div>
   </div>
 
-  <figure class="reveal" style="margin-top:26px">
-    <div class="fig"><img src="assets/bpa_uncertainty_compact.webp" width="2400" height="1179" loading="lazy" alt="Left and middle: reliability diagrams for Cohorts A and B, where BPA confidence tracks empirical top-1 precision near the diagonal. Right: deferral rate versus precision curves; at 50% deferral, Manana-Multi on Cohort B reaches 95% precision."></div>
-    <figcaption>BPA confidence tracks real agreement (left, middle); deferring low-confidence cases raises precision (right).</figcaption>
-  </figure>
+  <div class="calib reveal">
+    <div class="calib-head"><h3>Is the confidence honest?</h3><p>Binned BPA confidence against how often the top regimen matched the physician. Points near the diagonal mean the score can be trusted.</p></div>
+    <div class="calib-grid">
+      <div><div class="ctitle">Cohort A</div><div class="chart sq" id="rel-A" role="img" aria-label="Reliability diagram, Cohort A"></div></div>
+      <div><div class="ctitle">Cohort B</div><div class="chart sq" id="rel-B" role="img" aria-label="Reliability diagram, Cohort B"></div></div>
+    </div>
+    <div class="clegend"><span><i class="ln multi"></i>Manana-Multi</span><span><i class="ln single"></i>Manana-Single</span><span><i class="ln diag"></i>perfect calibration</span></div>
+  </div>
 </section>
 
 <section class="container wide sec" id="evidence" aria-labelledby="evidence-title">
@@ -372,6 +376,6 @@ any information that is not needed for the decision.
   </div>
 </footer>
 
-<script src="script.js?v=4" defer></script>
+<script src="script.js?v=8" defer></script>
 </body>
 </html>
