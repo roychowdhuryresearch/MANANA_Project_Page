@@ -15,7 +15,7 @@
     const signal = (i, t) => {
       const x = (i / N) * W, u = i / N;
       // calm background rhythm drifting left
-      let y = 2.6 * Math.sin(2 * Math.PI * (u * 9 + t * 0.32)) + 0.9 * Math.sin(2 * Math.PI * (u * 27 + t * 0.9)) + noise[(i + Math.floor(t * 12)) % (N + 1)] * 0.7;
+      let y = 2.6 * Math.sin(2 * Math.PI * (u * 9 + t * 0.32)) + 0.9 * Math.sin(2 * Math.PI * (u * 27 + t * 0.9)) + noise[(((i + Math.floor(t * 12)) % (N + 1)) + (N + 1)) % (N + 1)] * 0.7;
       // spike-and-wave burst on the left half, gently breathing
       const env = Math.exp(-Math.pow((u - 0.29) / 0.11, 2)) * (0.85 + 0.15 * Math.sin(t * 0.9));
       if (env > 0.01) {
@@ -39,7 +39,7 @@
     else {
       let running = false, t0 = performance.now(), visible = true;
       const loop = (now) => {
-        const t = (now - t0) / 1000;
+        const t = Math.max(0, (now - t0) / 1000);
         while (ripples.length && t - ripples[0].t0 > 3.5) ripples.shift();
         draw(t);
         if (visible && !document.hidden) requestAnimationFrame(loop); else running = false;
@@ -316,6 +316,157 @@
     }));
     draw();
     redraw.push(draw);
+  }
+
+  /* ---------- map: Africa → Uganda zoom ---------- */
+  const mapHost = $('#map'), MAP = window.MANANA_MAP;
+  if (mapHost && MAP) {
+    const svg = el('svg', { viewBox: `0 0 ${MAP.w} ${MAP.h}`, preserveAspectRatio: 'xMidYMid meet' }, mapHost);
+    const gC = el('g', { class: 'countries' }, svg);
+    MAP.countries.forEach(c => { const p = el('path', { d: c.d, class: 'c' + (c.id === 'UGA' ? ' ug' : '') }, gC); const t = el('title', {}, p); t.textContent = c.name; });
+    const gL = el('g', { class: 'lakes' }, svg);
+    MAP.lakes.forEach(l => el('path', { d: l.d, class: 'lake' }, gL));
+    const [kx, ky] = MAP.kampala;
+    const pin = el('g', { class: 'pin' }, svg);
+    const pulse = el('circle', { cx: kx, cy: ky, class: 'pulse' }, pin);
+    const dot = el('circle', { cx: kx, cy: ky, class: 'dot' }, pin);
+    const kLab = el('text', { x: kx, y: ky, class: 'klab' }, pin); kLab.textContent = 'Kampala';
+    const [ux, uy, uw, uh] = MAP.uganda;
+    const uLab = el('text', { x: ux + uw * 0.42, y: uy + uh * 0.32, class: 'ulab', 'text-anchor': 'middle' }, svg); uLab.textContent = 'UGANDA';
+    const vLab = el('text', { x: kx + 14, y: ky + 40, class: 'vlab', 'text-anchor': 'middle' }, svg); vLab.textContent = 'Lake Victoria';
+
+    const full = [0, 0, MAP.w, MAP.h];
+    const zw = 190, zh = zw * MAP.h / MAP.w, zoomBox = [kx - zw * 0.6, ky - zh * 0.44, zw, zh];
+    let cur = full.slice(), raf = 0;
+    const apply = (vb) => {
+      svg.setAttribute('viewBox', vb.map(v => v.toFixed(2)).join(' '));
+      const k = vb[2] / MAP.w; // 1 at full view, ~0.19 zoomed
+      const z = Math.max(0, Math.min(1, (1 - k) / (1 - zw / MAP.w)));
+      svg.style.setProperty('--k', k);
+      dot.setAttribute('r', 9 * k + 1.2 * (1 - k) * 0.2);
+      pulse.setAttribute('r', 9 * k);
+      kLab.setAttribute('x', kx + 7 * k + 3.2 * z); kLab.setAttribute('y', ky - 7 * k - 2.2 * z);
+      kLab.style.fontSize = (34 * k) + 'px';
+      uLab.style.fontSize = (60 * k) + 'px'; uLab.style.opacity = z;
+      vLab.style.fontSize = (30 * k) + 'px'; vLab.style.opacity = z;
+      kLab.style.opacity = Math.max(0, (z - 0.25) / 0.75);
+    };
+    const ease = t => t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+    const go = (target, ms = 2200) => {
+      cancelAnimationFrame(raf);
+      $$('[data-zoom]').forEach(b => b.setAttribute('aria-pressed', (b.dataset.zoom === 'uganda') === (target === zoomBox)));
+      if (reduce) { cur = target.slice(); apply(cur); return; }
+      const from = cur.slice(), t0 = performance.now();
+      const step = (now) => {
+        const t = Math.min(1, (now - t0) / ms), e = ease(t);
+        // zoom in log space so the motion feels even
+        const w = Math.exp(Math.log(from[2]) + (Math.log(target[2]) - Math.log(from[2])) * e);
+        const cx = (from[0] + from[2] / 2) + ((target[0] + target[2] / 2) - (from[0] + from[2] / 2)) * e;
+        const cy = (from[1] + from[3] / 2) + ((target[1] + target[3] / 2) - (from[1] + from[3] / 2)) * e;
+        const hgt = w * MAP.h / MAP.w;
+        cur = [cx - w / 2, cy - hgt / 2, w, hgt];
+        apply(cur);
+        if (t < 1) raf = requestAnimationFrame(step);
+      };
+      raf = requestAnimationFrame(step);
+    };
+    // start zoomed out; glide into Uganda when the map is on screen (content is visible either way)
+    apply(full);
+    let zoomed = false;
+    const zoomIn = () => { if (!zoomed) { zoomed = true; setTimeout(() => go(zoomBox), 350); } };
+    if ('IntersectionObserver' in window) {
+      const io = new IntersectionObserver(([e]) => { if (e.isIntersecting) { zoomIn(); io.disconnect(); } }, { threshold: 0.45 });
+      io.observe(mapHost);
+    } else { cur = zoomBox.slice(); apply(cur); }
+    $$('[data-zoom]').forEach(b => b.addEventListener('click', () => { zoomed = true; go(b.dataset.zoom === 'uganda' ? zoomBox : full, 1600); }));
+  }
+
+  /* ---------- model-in-action walkthrough (synthetic, illustrative) ---------- */
+  const CASES = {
+    A: {
+      note: { head: 'Visit 3 · girl, 7 years, 22 kg', body: 'Focal seizures with impaired awareness since age 4. On carbamazepine since the first visit. Mother reports no seizures for the past three months and no side effects. Attending school.' },
+      specialists: [
+        ['Explicit_Drug_Directive_Agent', 'Current regimen is carbamazepine. The note gives no instruction to change it.'],
+        ['Seizure_Semiology_Agent', 'Focal seizures; no generalized features described.'],
+        ['Formulary_Adjunct_Agent', 'Seizures controlled on a first-line drug; no adjunct indicated.'],
+        ['EEG_Broad_Spectrum_Agent', 'No EEG or imaging findings in this note.'],
+      ],
+      votes: ['CBZ', 'CBZ', 'CBZ', 'CBZ', 'CBZ'],
+      dist: [['carbamazepine', 'CBZ', 0.93], ['carbamazepine + levetiracetam', 'CBZ+LEV', 0.05], ['valproate', 'VPA', 0.02]],
+    },
+    B: {
+      note: { head: 'Visit 2 · boy, 11 years, 34 kg', body: 'Generalized tonic-clonic seizures, now about weekly despite valproate. EEG: diffuse slowing with left-sided sharp waves. Teacher reports daytime drowsiness.' },
+      specialists: [
+        ['Explicit_Drug_Directive_Agent', 'Current regimen is valproate. Ongoing seizures documented; no explicit plan yet.'],
+        ['Seizure_Semiology_Agent', 'Convulsions look generalized, but the EEG suggests a focal component.'],
+        ['Formulary_Adjunct_Agent', 'Uncontrolled on a first-line drug; carbamazepine is a locally available adjunct.'],
+        ['EEG_Broad_Spectrum_Agent', 'Mixed EEG findings; broad-spectrum coverage stays relevant.'],
+      ],
+      votes: ['VPA+LEV', 'VPA+CBZ', 'VPA+LEV', 'LEV', 'VPA+CBZ'],
+      dist: [['valproate + levetiracetam', 'VPA+LEV', 0.41], ['valproate + carbamazepine', 'VPA+CBZ', 0.33], ['levetiracetam', 'LEV', 0.18]],
+    },
+  };
+  const THRESH = 0.90;
+  const demo = $('#demo');
+  if (demo) {
+    const st = { c: 'A', s: 0, playing: !reduce, timer: 0 };
+    const noteEl = $('#demo-note'), stage = $('#demo-stage');
+    const regCls = r => 'rg-' + r.replace(/\+/g, '-').toLowerCase();
+    const render = () => {
+      const C = CASES[st.c];
+      $$('[data-case]').forEach(b => b.setAttribute('aria-pressed', b.dataset.case === st.c));
+      $$('#pipe button').forEach(b => {
+        const i = +b.dataset.step;
+        b.classList.toggle('done', i < st.s); b.classList.toggle('on', i === st.s);
+        b.setAttribute('aria-current', i === st.s ? 'step' : 'false');
+      });
+      noteEl.className = 'note' + (st.s === 0 ? ' focus' : '');
+      noteEl.innerHTML = `<div class="note-tag">Clinic note · synthetic</div><h4>${C.note.head}</h4><p>${C.note.body}</p><div class="note-q">Which anti-seizure regimen will the physician prescribe?</div>`;
+      let html = '';
+      if (st.s === 0) {
+        html = `<div class="st-title">The note arrives</div><p class="st-p">Manana reads the current note, earlier visits, and earlier prescriptions. The physician's plan is hidden; Manana has to predict it.</p>
+          <div class="st-chain"><span>Note</span><i></i><span>4 specialists</span><i></i><span>5 memory states</span><i></i><span>BPA</span></div>`;
+      } else if (st.s === 1) {
+        html = `<div class="st-title">Learned specialists surface signals</div><div class="spec-list">` +
+          C.specialists.map((x, i) => `<div class="spec" style="--d:${i * 90}ms"><div class="spec-n">${x[0]}</div><div class="spec-o">${x[1]}</div></div>`).join('') +
+          `</div><p class="st-foot">Specialists only observe. The Predictor turns their signals into three candidate regimens.</p>`;
+      } else if (st.s === 2) {
+        html = `<div class="st-title">Each memory state proposes; BPA merges</div>
+          <div class="votes">${C.votes.map((v, i) => `<div class="vote ${regCls(v)}" style="--d:${i * 80}ms"><span class="m">m<sub>${[3, 7, 9, 12, 15][i]}</sub></span><span class="r">${v}</span></div>`).join('')}</div>
+          <div class="dist">${C.dist.map(([name, code, p], i) => `<div class="drow ${i === 0 ? 'top' : ''}"><span class="dn">${name}</span><span class="dt"><i class="${regCls(code)}" style="width:${(p * 100).toFixed(0)}%"></i></span><span class="dp">${p.toFixed(2)}</span></div>`).join('')}</div>
+          <p class="st-foot">Five retained memory states from learning, weighted by validation evidence. Probability on the top regimen is the confidence.</p>`;
+      } else {
+        const top = C.dist[0], ok = top[2] >= THRESH;
+        html = `<div class="st-title">Recommend or defer</div>
+          <div class="gauge"><div class="gbar"><i style="width:${(top[2] * 100).toFixed(0)}%" class="${ok ? 'ok' : 'low'}"></i><b style="left:${THRESH * 100}%"></b></div>
+          <div class="glab"><span>confidence <b>${top[2].toFixed(2)}</b></span><span>clinic threshold ${THRESH.toFixed(2)}</span></div></div>
+          <div class="verdict-card ${ok ? 'vc-ok' : 'vc-defer'}">${ok
+            ? `<div class="vk">Recommend</div><div class="vt">Continue <b>${top[0]}</b></div><p>High confidence. The suggestion goes to the frontline clinician, who makes the final call.</p>`
+            : `<div class="vk">Defer to a specialist</div><div class="vt">Top options: ${C.dist.map(d => d[0]).join(' · ')}</div><p>Confidence is below the threshold. The case is routed for specialist review with the candidate regimens and the flagged focal-versus-generalized conflict.</p>`}</div>`;
+      }
+      stage.innerHTML = html;
+    };
+    const schedule = () => {
+      clearTimeout(st.timer);
+      $('#demo-play').textContent = st.playing ? 'Pause' : 'Play';
+      if (!st.playing) return;
+      st.timer = setTimeout(() => {
+        if (st.s < 3) st.s++;
+        else { st.s = 0; st.c = st.c === 'A' ? 'B' : 'A'; }
+        render(); schedule();
+      }, st.s === 3 ? 5200 : 3600);
+    };
+    const userGo = (fn) => { fn(); st.playing = false; render(); schedule(); };
+    $$('#pipe button').forEach(b => b.addEventListener('click', () => userGo(() => { st.s = +b.dataset.step; })));
+    $$('[data-case]').forEach(b => b.addEventListener('click', () => userGo(() => { st.c = b.dataset.case; st.s = 0; })));
+    $('#demo-prev').addEventListener('click', () => userGo(() => { st.s = Math.max(0, st.s - 1); }));
+    $('#demo-next').addEventListener('click', () => userGo(() => { st.s = Math.min(3, st.s + 1); }));
+    $('#demo-play').addEventListener('click', () => { st.playing = !st.playing; schedule(); });
+    // only autoplay while the demo is on screen
+    if ('IntersectionObserver' in window) {
+      new IntersectionObserver(([e]) => { if (!e.isIntersecting) clearTimeout(st.timer); else schedule(); }, { threshold: 0.3 }).observe(demo);
+    }
+    render(); schedule();
   }
 
   /* ---------- BibTeX copy ---------- */
