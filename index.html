@@ -38,7 +38,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300..800&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=7">
+<link rel="stylesheet" href="style.css?v=9">
 <script>
   document.documentElement.classList.add('js');
 </script>
@@ -71,8 +71,8 @@
   </h1>
   <svg class="eeg" id="eeg" viewBox="0 0 560 46" preserveAspectRatio="none" aria-hidden="true"></svg>
   <p class="authors">
-    <span class="a"><a href="https://shrajesh.xyz/" target="_blank" rel="noopener">Shreyas Rajesh</a><sup>1,*</sup></span>
-    <span class="a"><a href="https://skartik04.github.io/" target="_blank" rel="noopener">Kartik Sharma</a><sup>1,*</sup></span>
+    <span class="a"><a href="https://shrajesh.xyz/" target="_blank" rel="noopener">Shreyas Rajesh</a><sup>1,<b class="eqm">*</b></sup></span>
+    <span class="a"><a href="https://skartik04.github.io/" target="_blank" rel="noopener">Kartik Sharma</a><sup>1,<b class="eqm">*</b></sup></span>
     <span class="a">Tonmoy Monsoor<sup>1</sup></span>
     <span class="a"><a href="https://www.yigitturali.com/" target="_blank" rel="noopener">Mehmet Yigit Turali</a><sup>1</sup></span>
     <span class="a">Richard Idro<sup>3</sup></span>
@@ -89,7 +89,7 @@
     <span><sup>3</sup>Makerere University</span>
     <span><sup>4</sup>St. Francis Hospital Nsambya</span>
   </p>
-  <p class="eq">*Equal contribution</p>
+  <p class="eq"><span class="eqbadge"><b>*</b> Equal contribution · Shreyas Rajesh and Kartik Sharma</span></p>
   <div class="links">
     <a class="btn" href="https://arxiv.org/pdf/2606.31036" target="_blank" rel="noopener"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 1h6.5L13 4.5V15H3V1zm6 1.2V5h2.8L9 2.2zM5 8h6v1H5V8zm0 2h6v1H5v-1zm0 2h4v1H5v-1z"/></svg>Paper</a>
     <a class="btn" href="https://arxiv.org/abs/2606.31036" target="_blank" rel="noopener"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2.2 2h2.6l3.2 4.4L11.2 2h2.6L9.3 8l4.5 6h-2.6L8 9.6 4.8 14H2.2l4.5-6L2.2 2z"/></svg>arXiv</a>
@@ -318,9 +318,11 @@ any information that is not needed for the decision.
         <div class="r prec"><div class="v" id="d-prec">95%</div><div class="k">top-1 agreement with the physician on visits the system handles</div></div>
         <div class="r"><div class="v" id="d-cov">50%</div><div class="k">of visits handled; the rest go to specialist review</div></div>
       </div>
+      <p class="sentence" id="d-sentence" aria-live="polite"></p>
+    </div>
+    <div class="defer-plot">
       <div class="chart" id="defer-chart" role="img" aria-label="Deferral rate versus top-1 precision"></div>
       <div class="clegend"><span><i class="ln multi"></i>Manana-Multi</span><span><i class="ln single"></i>Manana-Single</span><span><i class="dot"></i>selected operating point</span></div>
-      <p class="sentence" id="d-sentence" aria-live="polite"></p>
     </div>
   </div>
 
@@ -376,6 +378,6 @@ any information that is not needed for the decision.
   </div>
 </footer>
 
-<script src="script.js?v=8" defer></script>
+<script src="script.js?v=9" defer></script>
 </body>
 </html>

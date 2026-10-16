@@ -463,3 +463,29 @@ figcaption { font-size: 14px; }
 .calib-grid > div { display: flex; flex-direction: column; align-items: center; }
 .calib-grid .ctitle { align-self: stretch; max-width: 380px; margin-inline: auto; padding-left: 44px; }
 #main-table tr.ours.first td { border-top: 2px solid var(--teal); }
+
+/* ===== bigger charts ===== */
+.defer { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+.defer-plot { grid-column: 1 / -1; border-top: 1px solid var(--hair); padding-top: 18px; }
+.defer #defer-chart { margin-top: 0; }
+.chart .axis text { font-size: 14px; }
+.chart .axis text.lab { font-size: 15px; font-weight: 600; }
+.chart .ser { stroke-width: 3.2; }
+.chart .ser.multi { stroke-width: 4; }
+.chart .ser.single { stroke-dasharray: 8 6; }
+.chart .diag { stroke-width: 2; }
+.chart .mark-lab { font-size: 16px; }
+.chart .tip text { font-size: 14px; }
+.chart.sq { max-width: 560px; }
+.calib-grid .ctitle { max-width: 560px; font-size: 16px; padding-left: 64px; }
+.calib-head h3 { font-size: 22px; }
+.clegend { font-size: 15px; gap: 8px 24px; margin-top: 14px; }
+.clegend .ln { width: 28px; border-top-width: 4px; }
+.clegend .dot { width: 13px; height: 13px; }
+@media (max-width: 860px) { .defer-plot { grid-column: auto; } .calib-grid .ctitle { padding-left: 46px; } }
+
+/* ===== equal contribution ===== */
+.authors sup .eqm { color: var(--accent); font-weight: 800; font-size: 1.15em; }
+.eq { margin-top: 10px; }
+.eqbadge { display: inline-flex; align-items: center; gap: 6px; font-size: 14px; color: var(--accent-ink); background: var(--accent-soft); padding: 6px 14px; border-radius: 999px; font-weight: 500; }
+.eqbadge b { color: var(--accent); font-weight: 800; font-size: 16px; }

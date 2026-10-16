@@ -190,21 +190,21 @@
   };
   const chart = (host, o) => {
     host.innerHTML = '';
-    const W = o.w, H = o.h, m = { t: 12, r: 14, b: 40, l: 44 };
+    const W = o.w, H = o.h, m = { t: 16, r: 18, b: 52, l: W >= 420 ? 64 : 46 };
     const sx = v => m.l + (v - o.x[0]) / (o.x[1] - o.x[0]) * (W - m.l - m.r);
     const sy = v => H - m.b - (v - o.y[0]) / (o.y[1] - o.y[0]) * (H - m.t - m.b);
     const svg = el('svg', { viewBox: `0 0 ${W} ${H}`, preserveAspectRatio: 'xMidYMid meet' }, host);
     const g = el('g', { class: 'axis' }, svg);
-    o.yt.forEach(v => { el('line', { x1: m.l, x2: W - m.r, y1: sy(v), y2: sy(v), class: 'grid' }, g); const t = el('text', { x: m.l - 8, y: sy(v) + 4, 'text-anchor': 'end' }, g); t.textContent = o.yf ? o.yf(v) : v; });
-    o.xt.forEach(v => { const t = el('text', { x: sx(v), y: H - m.b + 18, 'text-anchor': 'middle' }, g); t.textContent = o.xf ? o.xf(v) : v; });
+    o.yt.forEach(v => { el('line', { x1: m.l, x2: W - m.r, y1: sy(v), y2: sy(v), class: 'grid' }, g); const t = el('text', { x: m.l - 10, y: sy(v) + 5, 'text-anchor': 'end' }, g); t.textContent = o.yf ? o.yf(v) : v; });
+    o.xt.forEach(v => { const t = el('text', { x: sx(v), y: H - m.b + 22, 'text-anchor': 'middle' }, g); t.textContent = o.xf ? o.xf(v) : v; });
     el('line', { x1: m.l, x2: W - m.r, y1: H - m.b, y2: H - m.b, class: 'base' }, g);
-    const xl = el('text', { x: m.l + (W - m.l - m.r) / 2, y: H - 4, 'text-anchor': 'middle', class: 'lab' }, g); xl.textContent = o.xl;
-    if (W >= 420) { const yl = el('text', { x: 12, y: m.t + (H - m.t - m.b) / 2, 'text-anchor': 'middle', class: 'lab', transform: `rotate(-90 12 ${m.t + (H - m.t - m.b) / 2})` }, g); yl.textContent = o.yl; }
+    const xl = el('text', { x: m.l + (W - m.l - m.r) / 2, y: H - 6, 'text-anchor': 'middle', class: 'lab' }, g); xl.textContent = o.xl;
+    if (W >= 420) { const yl = el('text', { x: 16, y: m.t + (H - m.t - m.b) / 2, 'text-anchor': 'middle', class: 'lab', transform: `rotate(-90 16 ${m.t + (H - m.t - m.b) / 2})` }, g); yl.textContent = o.yl; }
     if (o.diag) el('line', { x1: sx(o.x[0]), y1: sy(o.y[0]), x2: sx(o.x[1]), y2: sy(o.y[1]), class: 'diag' }, svg);
     o.series.forEach(se => {
       const d = se.xs.map((x, i) => (i ? 'L' : 'M') + sx(x).toFixed(1) + ' ' + sy(se.ys[i]).toFixed(1)).join('');
       el('path', { d, class: 'ser ' + se.cls }, svg);
-      if (se.dots) se.xs.forEach((x, i) => el('circle', { cx: sx(x), cy: sy(se.ys[i]), r: 3.4, class: 'pt ' + se.cls }, svg));
+      if (se.dots) se.xs.forEach((x, i) => el('circle', { cx: sx(x), cy: sy(se.ys[i]), r: 5, class: 'pt ' + se.cls }, svg));
     });
     return { svg, sx, sy, m, W, H };
   };
@@ -213,9 +213,9 @@
   const drawRel = () => ['A', 'B'].forEach(c => {
     const host = document.getElementById('rel-' + c);
     if (!host) return;
-    const w = Math.max(280, Math.min(380, host.clientWidth || 360));
+    const w = Math.max(300, Math.min(560, host.clientWidth || 520));
     chart(host, {
-      w, h: Math.round(w * 0.86), x: [0, 1], y: [0, 100], xt: [0, 0.2, 0.4, 0.6, 0.8, 1], yt: [0, 20, 40, 60, 80, 100],
+      w, h: Math.round(w * 0.78), x: [0, 1], y: [0, 100], xt: [0, 0.2, 0.4, 0.6, 0.8, 1], yt: [0, 20, 40, 60, 80, 100],
       xf: v => v.toFixed(1), xl: 'BPA confidence', yl: 'Agreement (%)', diag: true,
       series: [{ xs: REL_X, ys: REL[c].Single, cls: 'single', dots: true }, { xs: REL_X, ys: REL[c].Multi, cls: 'multi', dots: true }],
     });
@@ -253,21 +253,21 @@
 
       const dw = Math.max(280, dhost.clientWidth || 560);
       const c = chart(dhost, {
-        w: dw, h: Math.round(Math.max(230, Math.min(320, dw * 0.56))), x: [0, 100], y: [60, 100], xt: [0, 25, 50, 75, 100], yt: [60, 70, 80, 90, 100],
+        w: dw, h: Math.round(Math.max(300, Math.min(460, dw * 0.42))), x: [0, 100], y: [60, 100], xt: [0, 25, 50, 75, 100], yt: [60, 70, 80, 90, 100],
         xf: v => v + '%', yf: v => v + '%', xl: 'Deferred to specialist', yl: 'Top-1 agreement',
         series: [{ xs: DEFER_X, ys: DEFER[state.c].Single, cls: 'single' }, { xs: DEFER_X, ys: DEFER[state.c].Multi, cls: 'multi' }],
       });
       const mx = c.sx(deferred), my = c.sy(p);
       el('line', { x1: mx, x2: mx, y1: c.m.t, y2: c.H - c.m.b, class: 'mark-rule' }, c.svg);
-      el('circle', { cx: mx, cy: my, r: 7, class: 'mark' }, c.svg);
+      el('circle', { cx: mx, cy: my, r: 9, class: 'mark' }, c.svg);
       const lab = el('text', { x: mx + (deferred > 70 ? -12 : 12), y: my + (my < 40 ? 18 : -10), 'text-anchor': deferred > 70 ? 'end' : 'start', class: 'mark-lab' }, c.svg);
       lab.textContent = `${p}% · defer ${deferred}%`;
 
       // hover readout
       const guide = el('line', { y1: c.m.t, y2: c.H - c.m.b, class: 'hover-rule', visibility: 'hidden' }, c.svg);
       const tip = el('g', { class: 'tip', visibility: 'hidden' }, c.svg);
-      const tb = el('rect', { rx: 6, height: 44, width: 150 }, tip);
-      const t1 = el('text', { x: 10, y: 18 }, tip), t2 = el('text', { x: 10, y: 34 }, tip);
+      const tb = el('rect', { rx: 8, height: 54, width: 180 }, tip);
+      const t1 = el('text', { x: 12, y: 22 }, tip), t2 = el('text', { x: 12, y: 42 }, tip);
       const ov = el('rect', { x: c.m.l, y: c.m.t, width: c.W - c.m.l - c.m.r, height: c.H - c.m.t - c.m.b, fill: 'transparent' }, c.svg);
       const move = (ev) => {
         const pt = c.svg.createSVGPoint(); pt.x = ev.clientX; pt.y = ev.clientY;
@@ -279,7 +279,7 @@
         t2.textContent = `Multi ${DEFER[state.c].Multi[i].toFixed(1)}% · Single ${DEFER[state.c].Single[i].toFixed(1)}%`;
         const w = Math.max(t1.getComputedTextLength(), t2.getComputedTextLength()) + 20; tb.setAttribute('width', w);
         const tx = x + 10 + w > c.W - c.m.r ? x - 10 - w : x + 10;
-        tip.setAttribute('transform', `translate(${tx} ${c.H - c.m.b - 56})`); tip.setAttribute('visibility', 'visible');
+        tip.setAttribute('transform', `translate(${tx} ${c.H - c.m.b - 68})`); tip.setAttribute('visibility', 'visible');
       };
       ov.addEventListener('pointermove', move);
       ov.addEventListener('pointerleave', () => { guide.setAttribute('visibility', 'hidden'); tip.setAttribute('visibility', 'hidden'); });
