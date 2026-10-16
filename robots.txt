@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://roychowdhuryresearch.github.io/MANANA_Project_Page/sitemap.xml
