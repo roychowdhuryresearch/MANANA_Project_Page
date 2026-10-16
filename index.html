@@ -38,7 +38,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300..800&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=17">
+<link rel="stylesheet" href="style.css?v=19">
 <script>
   document.documentElement.classList.add('js');
 </script>
@@ -49,8 +49,8 @@
   <div class="inner">
     <a class="brand" href="#top">Manana</a>
     <div class="sections">
+      <a href="#how">How it works</a>
       <a href="#clinic">In the clinic</a>
-      <a href="#method">Method</a>
       <a href="#learned">What it learns</a>
       <a href="#results">Results</a>
       <a href="#defer">Deferral</a>
@@ -110,17 +110,116 @@
 <main>
 
 
-<section class="container wide teaser" aria-label="Figure 1">
-  <figure class="reveal">
-    <div class="fig"><img src="assets/manana_diagram.webp" width="2400" height="1610" alt="MANANA workflow. A: the Predictor proposes three regimens per patient, the Inspector compares them with the physician prescription and writes candidate learnings into a shared buffer, and the Architect consolidates recurring signals into the next memory state, either a Single rule list or a Multi specialist population. B: at deployment, the memory trajectory is averaged with Bayesian prompt averaging into regimen probabilities; high-confidence cases assist the clinician and low-confidence cases are referred to a specialist."></div>
-    <figcaption><b>Manana.</b> (A) A Predictor, Inspector, and Architect turn prescription errors into a readable prompt memory, committing only lessons that recur across patients. (B) Bayesian prompt averaging over the learned memories gives each case a confidence score: recommend, or defer to a specialist.</figcaption>
-  </figure>
-</section>
-
 <section class="container sec abstract" aria-labelledby="abstract-title">
   <h2 id="abstract-title" class="abs-title">Abstract</h2>
   <div class="reveal">
     <p>Specialist epilepsy expertise is scarce in resource-constrained settings, creating a pressing need for decision-support tools that help frontline clinicians manage longitudinal treatment. Such systems must adapt to local prescribing practices and recognize when specialist review is needed. Most public medical AI benchmarks focus on high-income clinical settings, leaving prescribing practices, medication availability, and follow-up patterns in low-resource contexts largely unrepresented. We study this problem through a multidisciplinary collaboration focused on pediatric epilepsy care in Uganda. The task is to predict anti-seizure medication regimens from longitudinal unstructured notes collected by local clinicians across serial visits. General-purpose language models achieve non-trivial agreement with physician prescriptions, but neurologists' review of model reasoning traces shows that their errors reflect Western prescribing defaults that do not account for local clinical practices. We introduce <b>Manana</b>, a <b>non-parametric prompt-learning framework</b> that learns how to reason about local prescribing decisions from a small patient-level training set. Manana turns observed prescription errors into an auditable prompt memory, instantiated in single-agent and multi-agent variants, and outperforms classical ML models, direct LLM prompting, and prompt-optimization baselines across two independently collected Ugandan cohorts. The sequence of prompts produced during learning also provides a basis for estimating uncertainty. We exploit this through <b>Bayesian prompt averaging (BPA)</b>, which combines predictions across the learned prompt trajectory to produce prescription likelihoods and a deferral signal. Using the same Manana-Multi trajectory, BPA improves top-1 physician-regimen agreement from 66% to 70% on Cohort&nbsp;A and from 73% to 75% on Cohort&nbsp;B while preserving top-3 coverage. More consequentially, it enables clinically meaningful selective prediction: the system can auto-handle the most confident half of cases at <b>95% precision</b>, or the most confident quarter at <b>99% precision</b>, while deferring lower-confidence cases for specialist review. These results suggest a path toward locally adapted clinical LLM systems that learn from limited site-specific data and reserve scarce specialist attention for the cases where uncertainty is highest.</p>
+  </div>
+</section>
+
+<section class="container wide sec" id="how" aria-labelledby="how-title">
+  <h2 id="how-title">How Manana learns. Commit only what <em>recurs</em>.</h2>
+  <p class="lede">A Predictor, an Inspector, and an Architect turn prescription errors into readable memory. Scroll through the loop.</p>
+  <div class="hiw" id="hiw" data-stage="0">
+    <div class="hiw-fig">
+      <div class="hiw-sticky">
+        <div class="hiw-top">
+          <div class="seg" role="group" aria-label="Memory type">
+            <button type="button" data-mode="single" aria-pressed="false">Single</button>
+            <button type="button" data-mode="multi" aria-pressed="true">Multi</button>
+          </div>
+          <div class="hiw-dots" aria-hidden="true"><i data-d="0"></i><i data-d="1"></i><i data-d="2"></i><i data-d="3"></i><i data-d="4"></i><i data-d="5"></i></div>
+        </div>
+        <svg class="hiw-svg" viewBox="0 0 760 520" role="img" aria-labelledby="hiw-svg-t">
+        <title id="hiw-svg-t">Manana: Predictor, Inspector, evidence buffer, Architect, memory, and Bayesian prompt averaging</title>
+        <defs>
+          <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#c9c2b5"/></marker>
+          <marker id="ah-on" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#b0502a"/></marker>
+        </defs>
+        <text class="zone" x="20" y="20">LEARNING · 50 patients, 15 rounds</text>
+
+        <!-- edges -->
+        <path class="e" data-s="0" d="M150 92 H196"/>
+        <path class="e" data-s="1" d="M350 92 H376"/>
+        <path class="e" data-s="2" d="M452 92 H486"/>
+        <path class="e" data-s="2" d="M561 54 V64"/>
+        <path class="e" data-s="3" d="M561 132 V176"/>
+        <path class="e" data-s="4" d="M478 248 H354"/>
+        <path class="e" data-s="4" d="M200 248 H154"/>
+        <path class="e" data-s="4" d="M120 208 C 150 176, 230 176, 262 136"/>
+        <text class="elab" data-s="4" x="150" y="174">next round</text>
+
+        <!-- nodes: learning loop -->
+        <g class="n" data-s="0"><rect x="20" y="52" width="130" height="80" rx="14"/><text class="nt" x="85" y="86">Clinic note</text><text class="ns" x="85" y="106">+ visit history</text></g>
+        <g class="n key" data-s="1"><rect x="200" y="52" width="150" height="80" rx="14"/><text class="nt" x="275" y="86">Predictor</text><text class="ns" x="275" y="106">uses current memory</text></g>
+        <g class="cands" data-s="1 2">
+          <rect x="380" y="62" width="72" height="18" rx="9"/><text x="416" y="75">regimen 1</text>
+          <rect x="380" y="84" width="72" height="18" rx="9"/><text x="416" y="97">regimen 2</text>
+          <rect x="380" y="106" width="72" height="18" rx="9"/><text x="416" y="119">regimen 3</text>
+        </g>
+        <g class="rx" data-s="2"><rect x="496" y="26" width="130" height="26" rx="13"/><text x="561" y="43">physician's Rx</text></g>
+        <g class="n key" data-s="2"><rect x="490" y="66" width="142" height="66" rx="14"/><text class="nt" x="561" y="94">Inspector</text><text class="ns" x="561" y="114">writes one lesson</text></g>
+
+        <g class="buf" data-s="3 4">
+          <rect class="bufbox" x="480" y="180" width="260" height="128" rx="14"/>
+          <text class="nt sm" x="496" y="202" text-anchor="start">Evidence buffer</text>
+          <g class="card c1 match"><rect x="494" y="214" width="76" height="34" rx="8"/><text x="532" y="235">lesson · v12</text></g>
+          <g class="card c2"><rect x="576" y="214" width="76" height="34" rx="8"/><text x="614" y="235">lesson · v31</text></g>
+          <g class="card c3"><rect x="658" y="214" width="70" height="34" rx="8"/><text x="693" y="235">lesson · v7</text></g>
+          <g class="card c4"><rect x="494" y="256" width="76" height="34" rx="8"/><text x="532" y="277">lesson · v44</text></g>
+          <g class="card c5 match"><rect x="576" y="256" width="76" height="34" rx="8"/><text x="614" y="277">lesson · v58</text></g>
+          <g class="card c6"><rect x="658" y="256" width="70" height="34" rx="8"/><text x="693" y="277">lesson · v9</text></g>
+        </g>
+        <text class="quorum" data-s="4" x="610" y="326">✓ 2 visits agree → commit</text>
+
+        <g class="n key" data-s="4"><rect x="200" y="210" width="150" height="76" rx="14"/><text class="nt" x="275" y="242">Architect</text><text class="ns" x="275" y="262">commits what recurs</text></g>
+        <g class="n mem" data-s="4 5"><rect x="20" y="210" width="130" height="76" rx="14"/><text class="nt" x="85" y="236">Memory</text>
+          <g class="mem-single"><text class="ns" x="85" y="256">rule 1 · rule 2</text><text class="ns plus" x="85" y="274">+ rule 3</text></g>
+          <g class="mem-multi"><circle cx="58" cy="262" r="8"/><circle cx="80" cy="262" r="8"/><circle class="plus" cx="102" cy="262" r="8"/><text class="ns" x="85" y="282" style="font-size:10px">specialists</text></g>
+        </g>
+
+        <!-- deployment -->
+        <line class="div" x1="20" x2="740" y1="350" y2="350"/>
+        <text class="zone" x="20" y="374">DEPLOYMENT · new patient</text>
+        <g class="dep" data-s="5">
+          <g class="chips">
+            <rect x="20" y="398" width="44" height="44" rx="10"/><text x="42" y="425">m₁</text>
+            <rect x="70" y="398" width="44" height="44" rx="10"/><text x="92" y="425">m₂</text>
+            <rect x="120" y="398" width="44" height="44" rx="10"/><text x="142" y="425">m₃</text>
+            <rect x="170" y="398" width="44" height="44" rx="10"/><text x="192" y="425">m₄</text>
+            <rect x="220" y="398" width="44" height="44" rx="10"/><text x="242" y="425">m₅</text>
+          </g>
+          <path class="e" data-s="5" d="M270 420 H306"/>
+          <g class="n key bpa"><rect x="310" y="394" width="120" height="52" rx="14"/><text class="nt" x="370" y="418">BPA</text><text class="ns" x="370" y="436">weights by evidence</text></g>
+          <path class="e" data-s="5" d="M434 420 H466"/>
+          <g class="bars">
+            <text x="470" y="404">regimen 1</text><rect class="tr" x="548" y="394" width="150" height="12" rx="6"/><rect class="b1" x="548" y="394" width="120" height="12" rx="6"/><text class="v" x="706" y="404">0.80</text>
+            <text x="470" y="426">regimen 2</text><rect class="tr" x="548" y="416" width="150" height="12" rx="6"/><rect class="b2" x="548" y="416" width="22" height="12" rx="6"/><text class="v" x="706" y="426">0.15</text>
+            <text x="470" y="448">regimen 3</text><rect class="tr" x="548" y="438" width="150" height="12" rx="6"/><rect class="b3" x="548" y="438" width="8" height="12" rx="6"/><text class="v" x="706" y="448">0.05</text>
+          </g>
+          <g class="pill ok"><rect x="470" y="470" width="128" height="34" rx="17"/><text x="534" y="492">Recommend</text></g>
+          <g class="pill df"><rect x="606" y="470" width="134" height="34" rx="17"/><text x="673" y="492">Defer to specialist</text></g>
+          <text class="ns left" x="20" y="478">If confidence is high, recommend;</text>
+          <text class="ns left" x="20" y="496">otherwise defer to a specialist.</text>
+        </g>
+      </svg>
+        <div class="hiw-cap" id="hiw-cap" aria-live="polite"></div>
+        <div class="hiw-ctl">
+          <button type="button" class="ctl" id="hiw-prev" aria-label="Previous step">←</button>
+          <button type="button" class="ctl play" id="hiw-play">Pause</button>
+          <button type="button" class="ctl" id="hiw-next" aria-label="Next step">→</button>
+        </div>
+        <a class="hiw-pdf" href="assets/manana_diagram.pdf" target="_blank" rel="noopener">Paper figure (PDF)</a>
+      </div>
+    </div>
+    <div class="hiw-steps">
+      <div class="hiw-step" data-step="0"><span class="hs-n">1</span><h3>Read the visit</h3><p>The Predictor reads the current clinic note together with earlier notes and earlier prescriptions.</p></div>
+      <div class="hiw-step" data-step="1"><span class="hs-n">2</span><h3>Propose three regimens</h3><p>It proposes three candidate regimens over the clinic's 10 anti-seizure medications, conditioned on the current memory.</p></div>
+      <div class="hiw-step" data-step="2"><span class="hs-n">3</span><h3>Check against the physician</h3><p>The Inspector sees what the physician actually prescribed, diagnoses the miss, and writes one candidate lesson grounded in the note.</p></div>
+      <div class="hiw-step" data-step="3"><span class="hs-n">4</span><h3>Collect evidence</h3><p>Lessons go into an append-only evidence buffer, tagged with the visit they came from. Nothing changes the prompt yet.</p></div>
+      <div class="hiw-step" data-step="4"><span class="hs-n">5</span><h3>Commit only what recurs</h3><p>The Architect adds a lesson to memory only when at least two different visits support it. <b>Single</b> adds one rule per round; <b>Multi</b> spawns, edits, or prunes specialist agents. 15 rounds, 50 patients, no weight updates.</p></div>
+      <div class="hiw-step" data-step="5"><span class="hs-n">6</span><h3>Deploy with BPA</h3><p>Every memory state from learning becomes a voter. Bayesian prompt averaging weights them by validation evidence and merges their candidates into regimen probabilities: confident cases are recommended, the rest are deferred.</p></div>
+    </div>
   </div>
 </section>
 
@@ -178,20 +277,6 @@
   </div>
 </section>
 
-<section class="container wide sec" id="method" aria-labelledby="method-title">
-  <p class="kicker reveal">Method</p>
-  <h2 id="method-title" class="reveal">Learn from errors. Commit only what <em>recurs</em>.</h2>
-  <div class="roles reveal">
-    <div class="role"><span class="tag">Predictor</span><p>Proposes three regimens from the patient's notes and the current memory.</p></div>
-    <div class="role"><span class="tag">Inspector</span><p>Compares them with the physician's prescription and proposes a lesson.</p></div>
-    <div class="role"><span class="tag">Architect</span><p>Adds a lesson to memory only when two or more patients support it.</p></div>
-  </div>
-  <div class="variants reveal">
-    <div class="variant"><h4>Manana-Single</h4><div class="what">learns a short list of correction rules</div><div class="chips"><span class="chip">+ Add</span><span class="chip">∅ None</span></div></div>
-    <div class="variant"><h4>Manana-Multi</h4><div class="what">learns a small team of specialist agents</div><div class="chips"><span class="chip">+ Spawn</span><span class="chip">✎ Edit</span><span class="chip">✂ Prune</span><span class="chip">∅ None</span></div></div>
-  </div>
-  <p class="reveal" style="margin-top:18px">No weight updates, no clinician-written rules, 50 training patients. <b>Bayesian prompt averaging (BPA)</b> then combines the memories from every learning round into regimen probabilities and a confidence score.</p>
-</section>
 
 <section class="container wide sec" id="learned" aria-labelledby="learned-title">
   <p class="kicker reveal">What it learns</p>
@@ -433,6 +518,6 @@ any information that is not needed for the decision.
 </footer>
 
 <script src="assets/map-data.js?v=1" defer></script>
-<script src="script.js?v=18" defer></script>
+<script src="script.js?v=19" defer></script>
 </body>
 </html>

@@ -318,6 +318,62 @@
     redraw.push(draw);
   }
 
+  /* ---------- how it works: scroll-driven on desktop, autoplay loop on phones ---------- */
+  const hiw = $('#hiw');
+  if (hiw) {
+    const steps = $$('.hiw-step', hiw), dots = $$('.hiw-dots i', hiw), cap = $('#hiw-cap');
+    const N = steps.length;
+    let cur = -1;
+    const setStage = (i) => {
+      if (i === cur) return; cur = i;
+      hiw.dataset.stage = i;
+      for (let k = 0; k < N; k++) hiw.classList.toggle('ge' + k, i >= k);
+      steps.forEach((s, k) => s.classList.toggle('on', k === i));
+      dots.forEach((d, k) => { d.classList.toggle('on', k === i); d.classList.toggle('done', k < i); });
+      cap.innerHTML = `<h3>${i + 1}. ${steps[i].querySelector('h3').textContent}</h3><p>${steps[i].querySelector('p').innerHTML}</p>`;
+    };
+    const setMode = (m) => {
+      hiw.classList.toggle('mode-single', m === 'single'); hiw.classList.toggle('mode-multi', m === 'multi');
+      $$('[data-mode]', hiw).forEach(b => b.setAttribute('aria-pressed', b.dataset.mode === m));
+    };
+    $$('[data-mode]', hiw).forEach(b => b.addEventListener('click', () => setMode(b.dataset.mode)));
+    setMode('multi');
+    setStage(0);
+
+    const desktop = window.matchMedia('(min-width: 901px)');
+    // desktop: the step nearest the middle of the screen drives the diagram
+    if ('IntersectionObserver' in window) {
+      const io = new IntersectionObserver((es) => {
+        if (!desktop.matches) return;
+        es.forEach(e => { if (e.isIntersecting) setStage(+e.target.dataset.step); });
+      }, { rootMargin: '-45% 0px -50% 0px' });
+      steps.forEach(s => io.observe(s));
+    }
+    steps.forEach(s => s.addEventListener('click', () => s.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'center' })));
+
+    // phones: plays like a short video
+    let playing = !reduce, timer = 0, onScreen = false;
+    const play = $('#hiw-play');
+    const tick = () => {
+      clearTimeout(timer);
+      play.textContent = playing ? 'Pause' : 'Play';
+      if (!playing || desktop.matches || !onScreen) return;
+      timer = setTimeout(() => {
+        setStage((cur + 1) % N);
+        if (cur === 0) setMode(hiw.classList.contains('mode-multi') ? 'single' : 'multi');
+        tick();
+      }, cur === N - 1 ? 5200 : 3800);
+    };
+    const manual = (i) => { playing = false; setStage((i + N) % N); tick(); };
+    $('#hiw-prev').addEventListener('click', () => manual(cur - 1));
+    $('#hiw-next').addEventListener('click', () => manual(cur + 1));
+    play.addEventListener('click', () => { playing = !playing; tick(); });
+    if ('IntersectionObserver' in window) {
+      new IntersectionObserver(([e]) => { onScreen = e.isIntersecting; tick(); }, { threshold: 0.35 }).observe($('.hiw-sticky', hiw));
+    }
+    desktop.addEventListener('change', tick);
+  }
+
   /* ---------- map: Africa → Uganda zoom ---------- */
   const mapHost = $('#map'), MAP = window.MANANA_MAP;
   if (mapHost && MAP) {

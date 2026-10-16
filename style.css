@@ -720,3 +720,104 @@ footer { font-size: 16px; }
 @media (prefers-reduced-motion: reduce) {
   .map .pin .pulse, .stage, .spec, .vote, .drow .dt i, .gbar i, .verdict-card { animation: none; }
 }
+
+/* ===== how it works: native diagram + scroll steps ===== */
+.hiw { display: grid; grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr); gap: 48px; margin-top: 10px; }
+.hiw-sticky { position: sticky; top: 86px; background: var(--card); border: 1px solid var(--hair); border-radius: 20px; padding: 18px 20px 16px; box-shadow: var(--shadow); }
+.hiw-top { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 6px; }
+.hiw-top .seg button { font-size: 14px; padding: 8px 14px; }
+.hiw-dots { display: flex; gap: 6px; }
+.hiw-dots i { width: 22px; height: 4px; border-radius: 2px; background: var(--hair); transition: background .3s; }
+.hiw-dots i.on { background: var(--accent); }
+.hiw-dots i.done { background: var(--teal); }
+.hiw-svg { display: block; width: 100%; height: auto; }
+.hiw-svg text { font-family: var(--body); }
+.hiw-svg .zone { font: 600 11px var(--mono); letter-spacing: .12em; fill: var(--muted); }
+.hiw-svg .div { stroke: var(--hair); stroke-dasharray: 4 6; }
+.hiw-svg .n rect { fill: #fff; stroke: var(--hair-2); stroke-width: 1.5; transition: stroke .35s, fill .35s; }
+.hiw-svg .nt { font-size: 17px; font-weight: 650; fill: var(--ink); text-anchor: middle; letter-spacing: -0.01em; }
+.hiw-svg .nt.sm { font-size: 13px; font-weight: 600; }
+.hiw-svg .ns { font-size: 11.5px; fill: var(--muted); text-anchor: middle; }
+.hiw-svg .ns.left { text-anchor: start; font-size: 12px; }
+.hiw-svg .e { fill: none; stroke: #d6cfc2; stroke-width: 2; marker-end: url(#ah); transition: stroke .3s; }
+.hiw-svg .elab { font-size: 11px; font-style: italic; fill: var(--muted); }
+.hiw-svg :is(.n, .cands, .rx, .buf, .dep, .elab)[data-s] { opacity: .28; transition: opacity .45s; }
+.hiw-svg .cands rect { fill: var(--teal-soft); stroke: var(--teal); stroke-width: 1; }
+.hiw-svg .cands text { font-size: 10px; font-weight: 600; fill: var(--teal-ink); text-anchor: middle; }
+.hiw-svg .rx rect { fill: var(--ink); }
+.hiw-svg .rx text { font-size: 11.5px; font-weight: 600; fill: #fff; text-anchor: middle; }
+.hiw-svg .bufbox { fill: #faf8f4; stroke: var(--hair-2); stroke-dasharray: 5 5; }
+.hiw-svg .card { opacity: 0; transition: opacity .35s; }
+.hiw-svg .card rect { fill: #fff; stroke: var(--hair-2); transition: fill .35s, stroke .35s; }
+.hiw-svg .card text { font-size: 9.5px; font-family: var(--mono); fill: var(--muted); text-anchor: middle; }
+.hiw.ge3 .hiw-svg .card { opacity: 1; }
+.hiw.ge3 .hiw-svg .c2 { transition-delay: .12s } .hiw.ge3 .hiw-svg .c3 { transition-delay: .24s }
+.hiw.ge3 .hiw-svg .c4 { transition-delay: .36s } .hiw.ge3 .hiw-svg .c5 { transition-delay: .48s } .hiw.ge3 .hiw-svg .c6 { transition-delay: .6s }
+.hiw[data-stage="4"] .hiw-svg .card:not(.match) { opacity: .35; }
+.hiw[data-stage="4"] .hiw-svg .card.match rect { fill: var(--accent-soft); stroke: var(--accent); stroke-width: 1.6; }
+.hiw[data-stage="4"] .hiw-svg .card.match text { fill: var(--accent-ink); font-weight: 600; }
+.hiw-svg .quorum { font-size: 12.5px; font-weight: 650; fill: var(--accent); text-anchor: middle; opacity: 0; transition: opacity .4s .3s; }
+.hiw[data-stage="4"] .hiw-svg .quorum { opacity: 1; }
+.hiw-svg .mem rect { fill: var(--teal-pale) !important; }
+.hiw-svg .mem circle { fill: var(--teal); }
+.hiw-svg .mem .plus { opacity: 0; transition: opacity .4s .5s; }
+.hiw.ge4 .hiw-svg .mem .plus { opacity: 1; }
+.hiw-svg .mem text.plus { fill: var(--teal-ink); font-weight: 600; }
+.hiw.mode-single .hiw-svg .mem-multi, .hiw.mode-multi .hiw-svg .mem-single { display: none; }
+.hiw-svg .chips rect { fill: var(--teal-pale); stroke: var(--teal); }
+.hiw-svg .chips text { font-size: 14px; font-weight: 600; fill: var(--teal-ink); text-anchor: middle; }
+.hiw-svg .bars text { font-size: 11.5px; fill: var(--text); }
+.hiw-svg .bars text.v { font-family: var(--mono); fill: var(--ink); }
+.hiw-svg .bars .tr { fill: var(--paper-2); }
+.hiw-svg .bars .b1 { fill: var(--teal); } .hiw-svg .bars .b2, .hiw-svg .bars .b3 { fill: var(--hair-2); }
+.hiw-svg .bars .b1, .hiw-svg .bars .b2, .hiw-svg .bars .b3 { transform-box: fill-box; transform-origin: left; }
+.hiw[data-stage="5"] .hiw-svg .bars :is(.b1, .b2, .b3) { animation: grow .9s cubic-bezier(.2,.7,.2,1) both; }
+.hiw-svg .pill.ok rect { fill: var(--teal); } .hiw-svg .pill.ok text { fill: #fff; }
+.hiw-svg .pill.df rect { fill: #fff; stroke: var(--accent); stroke-width: 1.5; } .hiw-svg .pill.df text { fill: var(--accent-ink); }
+.hiw-svg .pill text { font-size: 12.5px; font-weight: 600; text-anchor: middle; }
+.hiw[data-stage="5"] .hiw-svg .bpa rect { stroke: var(--accent); stroke-width: 2.2; fill: #fff8f3; }
+@keyframes flow { to { stroke-dashoffset: -12; } }
+.hiw[data-stage="0"] .hiw-svg [data-s~="0"]{opacity:1}
+.hiw[data-stage="0"] .hiw-svg .e[data-s~="0"]{stroke:var(--accent);marker-end:url(#ah-on);stroke-dasharray:6 6;animation:flow .8s linear infinite}
+.hiw[data-stage="0"] .hiw-svg .n.key[data-s~="0"] rect{stroke:var(--accent);stroke-width:2.2;fill:#fff8f3}
+.hiw[data-stage="1"] .hiw-svg [data-s~="1"]{opacity:1}
+.hiw[data-stage="1"] .hiw-svg .e[data-s~="1"]{stroke:var(--accent);marker-end:url(#ah-on);stroke-dasharray:6 6;animation:flow .8s linear infinite}
+.hiw[data-stage="1"] .hiw-svg .n.key[data-s~="1"] rect{stroke:var(--accent);stroke-width:2.2;fill:#fff8f3}
+.hiw[data-stage="2"] .hiw-svg [data-s~="2"]{opacity:1}
+.hiw[data-stage="2"] .hiw-svg .e[data-s~="2"]{stroke:var(--accent);marker-end:url(#ah-on);stroke-dasharray:6 6;animation:flow .8s linear infinite}
+.hiw[data-stage="2"] .hiw-svg .n.key[data-s~="2"] rect{stroke:var(--accent);stroke-width:2.2;fill:#fff8f3}
+.hiw[data-stage="3"] .hiw-svg [data-s~="3"]{opacity:1}
+.hiw[data-stage="3"] .hiw-svg .e[data-s~="3"]{stroke:var(--accent);marker-end:url(#ah-on);stroke-dasharray:6 6;animation:flow .8s linear infinite}
+.hiw[data-stage="3"] .hiw-svg .n.key[data-s~="3"] rect{stroke:var(--accent);stroke-width:2.2;fill:#fff8f3}
+.hiw[data-stage="4"] .hiw-svg [data-s~="4"]{opacity:1}
+.hiw[data-stage="4"] .hiw-svg .e[data-s~="4"]{stroke:var(--accent);marker-end:url(#ah-on);stroke-dasharray:6 6;animation:flow .8s linear infinite}
+.hiw[data-stage="4"] .hiw-svg .n.key[data-s~="4"] rect{stroke:var(--accent);stroke-width:2.2;fill:#fff8f3}
+.hiw[data-stage="5"] .hiw-svg [data-s~="5"]{opacity:1}
+.hiw[data-stage="5"] .hiw-svg .e[data-s~="5"]{stroke:var(--accent);marker-end:url(#ah-on);stroke-dasharray:6 6;animation:flow .8s linear infinite}
+.hiw[data-stage="5"] .hiw-svg .n.key[data-s~="5"] rect{stroke:var(--accent);stroke-width:2.2;fill:#fff8f3}
+.hiw-steps { padding: 6vh 0 10vh; }
+.hiw-step { min-height: 58vh; display: flex; flex-direction: column; justify-content: center; opacity: .38; transition: opacity .4s; cursor: pointer; }
+.hiw-step:last-child { min-height: 46vh; }
+.hiw-step.on { opacity: 1; }
+.hiw-step .hs-n { display: inline-grid; place-items: center; width: 34px; height: 34px; border-radius: 50%; border: 1.5px solid var(--hair-2); font: 600 14px var(--mono); color: var(--muted); margin-bottom: 14px; transition: all .3s; }
+.hiw-step.on .hs-n { background: var(--accent); border-color: var(--accent); color: #fff; }
+.hiw-step h3 { margin: 0 0 10px; font-size: 26px; font-weight: 650; letter-spacing: -0.02em; }
+.hiw-step p { margin: 0; font-size: 18px; line-height: 1.65; color: var(--text); max-width: 440px; }
+.hiw-cap, .hiw-ctl { display: none; }
+.hiw-pdf { display: inline-block; margin-top: 8px; font-size: 13.5px; color: var(--muted); }
+@media (max-width: 900px) {
+  .hiw { grid-template-columns: 1fr; gap: 0; }
+  .hiw-steps { display: none; }
+  .hiw-sticky { position: static; padding: 14px 14px 16px; }
+  .hiw-cap { display: block; min-height: 132px; margin-top: 12px; }
+  .hiw-cap h3 { margin: 0 0 6px; font-size: 19px; font-weight: 650; }
+  .hiw-cap p { margin: 0; font-size: 15.5px; line-height: 1.6; color: var(--text); }
+  .hiw-ctl { display: flex; justify-content: center; gap: 8px; margin-top: 10px; }
+  .hiw-ctl .ctl { font: 500 15px var(--body); border: 1px solid var(--hair-2); background: #fff; color: var(--ink); border-radius: 999px; padding: 9px 16px; min-width: 44px; }
+  .hiw-ctl .play { min-width: 90px; }
+  .hiw-svg .nt { font-size: 19px; } .hiw-svg .ns { font-size: 13px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hiw .hiw-svg .e { animation: none !important; }
+  .hiw .hiw-svg .bars :is(.b1, .b2, .b3) { animation: none !important; }
+}
