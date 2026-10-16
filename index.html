@@ -1,46 +1,686 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>MANANA: Teaching LLMs to Recommend and Defer in Underrepresented Epilepsy Care</title><meta name="description" content="MANANA: non-parametric prompt learning and Bayesian prompt averaging for pediatric epilepsy care in Uganda. NeurIPS 2026."><meta property="og:title" content="MANANA: Teaching LLMs to Recommend and Defer in Underrepresented Epilepsy Care"><meta property="og:type" content="website"><meta property="og:url" content="https://roychowdhuryresearch.github.io/MANANA_Project_Page/"><meta property="og:image" content="https://roychowdhuryresearch.github.io/MANANA_Project_Page/assets/social.png"><meta name="twitter:card" content="summary_large_image"><link rel="canonical" href="https://roychowdhuryresearch.github.io/MANANA_Project_Page/"><link rel="icon" href="assets/icon.svg"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,400;0,700;0,900;1,400&amp;family=Roboto+Mono:wght@400&amp;display=swap" rel="stylesheet"><link rel="stylesheet" href="style.css"></head><body><main>
-<div class="container" style="max-width:1200px"><header class="pub">
-<h1 class="publication-title"><b>MANANA</b>: Teaching LLMs to Recommend and Defer in Underrepresented Epilepsy Care</h1>
-<p class="authors"><span class="a"><a href="https://shrajesh.xyz/" target="_blank" rel="noopener">Shreyas Rajesh</a><sup>1,*</sup></span>
-<span class="a"><a href="https://skartik04.github.io/" target="_blank" rel="noopener">Kartik Sharma</a><sup>1,*</sup></span>
-<span class="a"><span class="author-name">Tonmoy Monsoor</span><sup>1</sup></span>
-<span class="a"><a href="https://www.yigitturali.com/" target="_blank" rel="noopener">Mehmet Yigit Turali</a><sup>1</sup></span>
-<span class="a"><span class="author-name">Richard Idro</span><sup>3</sup></span>
-<span class="a"><span class="author-name">Juliana Kayaga</span><sup>3</sup></span>
-<span class="a"><span class="author-name">Robert Sebunya</span><sup>4</sup></span>
-<span class="a"><span class="author-name">Tracy Tushabe Namata</span><sup>3</sup></span>
-<span class="a"><span class="author-name">Jessica Nichole Pasqua</span><sup>2</sup></span>
-<span class="a"><a href="https://www.vwaniroychowdhury.com/" target="_blank" rel="noopener">Vwani Roychowdhury</a><sup>1</sup></span>
-<span class="a"><span class="author-name">Rajarshi Mazumder</span><sup>2</sup></span></p>
-<p class="affil"><sup>1</sup>Electrical and Computer Engineering, UCLA &nbsp; <sup>2</sup>Neurology, UCLA<br><sup>3</sup>Makerere University &nbsp; <sup>4</sup>St. Francis Hospital Nsambya</p>
-<p class="note">*Equal contribution</p><p class="venue">NeurIPS 2026</p>
-<div class="links">
-<a class="btn" href="https://arxiv.org/pdf/2606.31036" rel="noopener" target="_blank"><svg aria-hidden="true" viewBox="0 0 16 16"><path d="M3 1h6.5L13 4.5V15H3V1zm6 1.2V5h2.8L9 2.2zM5 8h6v1H5V8zm0 2h6v1H5v-1zm0 2h4v1H5v-1z"></path></svg>Paper</a>
-<a class="btn" href="https://arxiv.org/abs/2606.31036" rel="noopener" target="_blank"><svg aria-hidden="true" viewBox="0 0 16 16"><path d="M2.2 2h2.6l3.2 4.4L11.2 2h2.6L9.3 8l4.5 6h-2.6L8 9.6 4.8 14H2.2l4.5-6L2.2 2z"></path></svg>arXiv</a>
-<a class="btn" href="https://github.com/roychowdhuryresearch/Manana" rel="noopener" target="_blank"><svg aria-hidden="true" viewBox="0 0 16 16"><path d="M8 .2a8 8 0 0 0-2.5 15.6c.4.1.5-.2.5-.4v-1.5c-2.2.5-2.7-1-2.7-1-.4-.9-.9-1.2-.9-1.2-.7-.5.1-.5.1-.5.8.1 1.2.8 1.2.8.7 1.3 1.9.9 2.4.7.1-.5.3-.9.5-1.1-1.8-.2-3.6-.9-3.6-4 0-.9.3-1.6.8-2.1-.1-.2-.4-1 .1-2.1 0 0 .7-.2 2.2.8a7.4 7.4 0 0 1 4 0c1.5-1 2.2-.8 2.2-.8.4 1.1.2 1.9.1 2.1.5.6.8 1.3.8 2.1 0 3.1-1.9 3.8-3.7 4 .3.3.6.8.6 1.5v2.2c0 .2.1.5.6.4A8 8 0 0 0 8 .2z"></path></svg>Code</a>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MANANA: Teaching LLMs to Recommend and Defer in Underrepresented Epilepsy Care</title>
+<meta name="description" content="MANANA learns local anti-seizure prescribing patterns from 50 patients' clinic notes without weight updates, and Bayesian prompt averaging turns its learned prompt trajectory into a confidence score for deferring to specialists. NeurIPS 2026.">
+<meta name="author" content="Shreyas Rajesh, Kartik Sharma, Tonmoy Monsoor, Mehmet Yigit Turali, Richard Idro, Juliana Kayaga, Robert Sebunya, Tracy Tushabe Namata, Jessica Nichole Pasqua, Vwani Roychowdhury, Rajarshi Mazumder">
+<meta name="theme-color" content="#f6f2ea" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#121513" media="(prefers-color-scheme: dark)">
+<link rel="canonical" href="https://roychowdhuryresearch.github.io/MANANA_Project_Page/">
+<link rel="icon" href="assets/icon.svg" type="image/svg+xml">
 
-<a class="btn" href="#BibTeX"><svg aria-hidden="true" viewBox="0 0 16 16"><path d="M2 2h12v12H2V2zm2 3v1.2h8V5H4zm0 2.4v1.2h8V7.4H4zm0 2.4V11h5V9.8H4z"></path></svg>BibTeX</a>
-</div>
-</header></div>
-<div class="container" style="max-width:1100px"><figure class="paper-figure"><a href="assets/framework.pdf" aria-label="Open full-resolution MANANA framework"><img src="assets/framework.webp" alt="MANANA framework: Predictor, Inspector, and Architect update prompt memory in single-agent and multi-agent variants."></a><figcaption><b>MANANA overview.</b> The Predictor proposes medication regimens from longitudinal clinical notes. The Inspector examines prescription errors, and the Architect turns recurring evidence into reusable prompt memory. MANANA–Single updates shared instructions; MANANA–Multi refines specialist roles. Learning leaves the underlying model weights unchanged.</figcaption></figure></div>
-<div class="container"><section class="sec" aria-labelledby="abstract-title"><div class="col"><h2 id="abstract-title">Abstract</h2><div class="justify"><p>Specialist epilepsy expertise is scarce in resource-constrained settings, creating a pressing need for decision-support tools that help frontline clinicians manage longitudinal treatment. Such systems must adapt to local prescribing practices and recognize when specialist review is needed. Most public medical AI benchmarks focus on high-income clinical settings, leaving prescribing practices, medication availability, and follow-up patterns in low-resource contexts largely unrepresented. We study this problem through a multidisciplinary collaboration focused on pediatric epilepsy care in Uganda. The task is to predict anti-seizure medication regimens from longitudinal unstructured notes collected by local clinicians across serial visits. General-purpose language models achieve non-trivial agreement with physician prescriptions, but neurologists' review of model reasoning traces shows that their errors reflect Western prescribing defaults that do not account for local clinical practices. We introduce MANANA, a <strong>non-parametric prompt-learning framework</strong> that learns how to reason about local prescribing decisions from a small patient-level training set. MANANA turns observed prescription errors into an auditable prompt memory, instantiated in single-agent and multi-agent variants, and outperforms classical ML models, direct LLM prompting, and prompt-optimization baselines across two independently collected Ugandan cohorts. The sequence of prompts produced during learning also provides a basis for estimating uncertainty. We exploit this through <strong>Bayesian prompt averaging (BPA)</strong>, which combines predictions across the learned prompt trajectory to produce prescription likelihoods and a deferral signal. Using the same MANANA-Multi trajectory, BPA improves top-1 physician-regimen agreement from 66% to 70% on Cohort A and from 73% to 75% on Cohort B while preserving top-3 coverage. More consequentially, it enables clinically meaningful selective prediction: the system can auto-handle the most confident half of cases at <strong>95% precision</strong>, or the most confident quarter at <strong>99% precision</strong>, while deferring lower-confidence cases for specialist review. These results suggest a path toward locally adapted clinical LLM systems that learn from limited site-specific data and reserve scarce specialist attention for the cases where uncertainty is highest.</p></div></div></section>
-<section class="sec" aria-labelledby="method-title"><div class="col"><h2 id="method-title">How it works</h2><div class="justify ideas"><h3>Learning local prescribing guidance</h3><p>MANANA separates prediction, error inspection, and memory updates. Candidate lessons are collected in an evidence buffer; recurring patterns support updates to the prompt memory. The resulting instructions remain readable and auditable, without retraining the underlying language model.</p><h3>Bayesian prompt averaging</h3><p>The prompts produced over learning rounds provide multiple views of the same clinical case. Bayesian prompt averaging (BPA) combines their predictions into prescription likelihoods and a confidence signal for deferral to specialist review.</p></div></div></section></div>
-<section class="sec table-section" aria-labelledby="results-title"><h2 id="results-title">Results</h2><div class="col justify"><p>We evaluate on two independently collected Ugandan pediatric epilepsy cohorts. All prompt-learning methods use 50 training patients and 20 validation patients from Cohort A, with five seeds. The remaining Cohort A patients and all of Cohort B form the held-out test sets. V1–V3 denote successive visits; monotherapy uses one medication and polytherapy uses multiple medications.</p></div><div class="table-wrap" tabindex="0" role="region" aria-label="Table 1: main results"><table class="res" id="main-results"><caption><b>Table 1.</b> Main EM@3 results by cohort and regimen complexity. Values are top-3 exact match percentages; prompt-optimization rows report mean ± std over independent seeds where applicable. Green rows mark MANANA variants; darker cells mark the best value in each column.</caption><thead><tr><th rowspan="2" scope="col">Method</th><th colspan="3" scope="colgroup" class="grp">Monotherapy</th><th colspan="3" scope="colgroup" class="grp">Polytherapy</th></tr><tr><th scope="col">V1</th><th scope="col">V2</th><th scope="col">V3</th><th scope="col">V1</th><th scope="col">V2</th><th scope="col">V3</th></tr></thead><tbody><tr class="cohort"><th colspan="7" scope="rowgroup">Cohort A</th></tr><tr class="group"><th colspan="7">Expert System</th></tr><tr><td>EpiPick</td><td>52.9</td><td>49.1</td><td>51.3</td><td>—</td><td>—</td><td>—</td></tr><tr class="group"><th colspan="7">Classical methods</th></tr><tr><td>Naive Bayes</td><td>71.3 <small>±2.1</small></td><td>67.2 <small>±3.7</small></td><td>74.9 <small>±2.9</small></td><td class="best"><strong>35.8 <small>±1.1</small></strong></td><td>40.0 <small>±0.9</small></td><td>37.7 <small>±2.3</small></td></tr><tr><td>XGBoost</td><td>70.2 <small>±1.0</small></td><td>64.1 <small>±1.1</small></td><td>71.1 <small>±0.3</small></td><td>33.6 <small>±2.7</small></td><td>40.3 <small>±1.6</small></td><td>43.1 <small>±2.0</small></td></tr><tr class="group"><th colspan="7">Direct LLM prompting</th></tr><tr><td>Base Prompt (0-learning)</td><td>44.4 <small>±1.8</small></td><td>56.4 <small>±1.3</small></td><td>59.3 <small>±0.3</small></td><td>10.1 <small>±1.9</small></td><td>29.3 <small>±3.3</small></td><td>30.2 <small>±1.3</small></td></tr><tr><td>Single-agent</td><td>78.4 <small>±1.1</small></td><td>84.5 <small>±1.9</small></td><td>90.3 <small>±2.4</small></td><td>14.5 <small>±1.2</small></td><td>40.2 <small>±0.7</small></td><td>42.3 <small>±2.5</small></td></tr><tr class="group"><th colspan="7">Prompt optimization</th></tr><tr><td>DSPy (GEPA optimizer)</td><td>87.1 <small>±1.8</small></td><td>91.3 <small>±4.1</small></td><td>95.0 <small>±3.2</small></td><td>24.5 <small>±0.9</small></td><td>58.7 <small>±2.9</small></td><td>70.2 <small>±3.4</small></td></tr><tr><td>ExpeL</td><td>67.2 <small>±2.4</small></td><td>81.0 <small>±3.9</small></td><td>82.7 <small>±3.7</small></td><td>18.9 <small>±1.1</small></td><td>28.3 <small>±1.4</small></td><td>42.9 <small>±2.5</small></td></tr><tr><td>TextGrad</td><td>87.4 <small>±2.3</small></td><td>88.1 <small>±5.2</small></td><td>87.3 <small>±4.4</small></td><td>21.9 <small>±4.1</small></td><td>50.7 <small>±4.3</small></td><td>57.6 <small>±3.0</small></td></tr><tr class="ours"><td>MANANA-Single</td><td>87.0 <small>±0.4</small></td><td>92.1 <small>±2.5</small></td><td>93.2 <small>±2.1</small></td><td>25.3 <small>±1.0</small></td><td>57.0 <small>±5.6</small></td><td>64.1 <small>±3.9</small></td></tr><tr class="ours"><td>MANANA-Multi</td><td class="best"><strong>89.7 <small>±3.2</small></strong></td><td class="best"><strong>95.3 <small>±2.8</small></strong></td><td class="best"><strong>97.0 <small>±2.1</small></strong></td><td>30.8 <small>±1.9</small></td><td class="best"><strong>61.7 <small>±8.4</small></strong></td><td class="best"><strong>72.6 <small>±11.1</small></strong></td></tr><tr class="cohort"><th colspan="7" scope="rowgroup">Cohort B</th></tr><tr class="group"><th colspan="7">Expert System</th></tr><tr><td>EpiPick</td><td>58.0</td><td>61.4</td><td>58.1</td><td>—</td><td>—</td><td>—</td></tr><tr class="group"><th colspan="7">Classical methods</th></tr><tr><td>Naive Bayes</td><td>37.7 <small>±2.6</small></td><td>40.9 <small>±3.2</small></td><td>38.2 <small>±2.5</small></td><td>4.4 <small>±1.2</small></td><td>2.5 <small>±0.5</small></td><td>4.0 <small>±1.3</small></td></tr><tr><td>XGBoost</td><td>41.5 <small>±2.6</small></td><td>45.5 <small>±2.2</small></td><td>45.3 <small>±2.3</small></td><td>10.4 <small>±1.4</small></td><td>7.1 <small>±0.6</small></td><td>4.6 <small>±0.3</small></td></tr><tr class="group"><th colspan="7">Direct LLM prompting</th></tr><tr><td>Base Prompt (0-learning)</td><td>53.1 <small>±0.5</small></td><td>57.6 <small>±0.7</small></td><td>58.4 <small>±1.1</small></td><td>24.8 <small>±3.6</small></td><td>29.1 <small>±1.6</small></td><td>30.4 <small>±1.6</small></td></tr><tr><td>Single-agent</td><td>76.7 <small>±0.6</small></td><td>82.6 <small>±2.3</small></td><td>83.8 <small>±2.4</small></td><td>39.4 <small>±2.4</small></td><td>49.4 <small>±1.4</small></td><td>54.0 <small>±1.1</small></td></tr><tr class="group"><th colspan="7">Prompt optimization</th></tr><tr><td>DSPy (GEPA optimizer)</td><td>81.8 <small>±4.2</small></td><td>93.3 <small>±2.1</small></td><td class="best"><strong>94.8 <small>±1.1</small></strong></td><td>44.8 <small>±0.8</small></td><td>59.6 <small>±3.7</small></td><td>62.7 <small>±2.9</small></td></tr><tr><td>ExpeL</td><td>83.1 <small>±3.8</small></td><td>88.5 <small>±4.8</small></td><td>86.5 <small>±4.5</small></td><td>32.0 <small>±2.6</small></td><td>56.2 <small>±3.3</small></td><td>64.3 <small>±4.6</small></td></tr><tr><td>TextGrad</td><td>74.0 <small>±9.9</small></td><td>87.7 <small>±4.7</small></td><td>87.3 <small>±4.2</small></td><td>39.0 <small>±3.3</small></td><td>52.4 <small>±8.6</small></td><td>57.3 <small>±8.5</small></td></tr><tr class="ours"><td>MANANA-Single</td><td>82.2 <small>±5.0</small></td><td>92.8 <small>±2.7</small></td><td>92.2 <small>±2.2</small></td><td class="best"><strong>48.2 <small>±1.7</small></strong></td><td class="best"><strong>65.2 <small>±3.8</small></strong></td><td>66.4 <small>±4.7</small></td></tr><tr class="ours"><td>MANANA-Multi</td><td class="best"><strong>87.3 <small>±2.9</small></strong></td><td class="best"><strong>95.1 <small>±1.6</small></strong></td><td>93.2 <small>±1.9</small></td><td>40.2 <small>±4.6</small></td><td>61.1 <small>±5.8</small></td><td class="best"><strong>69.8 <small>±7.5</small></strong></td></tr></tbody></table></div></section>
-<section class="sec table-section" aria-labelledby="uncertainty-title"><h2 id="uncertainty-title">Uncertainty and deferral</h2><div class="col justify"><p>On the same MANANA–Multi trajectory, Beta-Binomial BPA improves top-1 physician-regimen agreement from 66% to 70% for Cohort A and from 73% to 75% for Cohort B. On Cohort B, the most confident half of predictions achieve 95% precision, and the most confident quarter achieve 99% precision.</p></div><div class="table-wrap" tabindex="0" role="region" aria-label="Table 2: BPA weighting"><table class="res compact"><caption><b>Table 2.</b> BPA weighting ablation for MANANA–Multi on held-out test sets. Each row ensembles the same retained Multi prompt trajectory. Gap is the difference between mean top-1 confidence on correct and incorrect predictions; P@25% and P@50% are top-1 precision among the most confident cases.</caption><thead><tr><th scope="col">Cohort</th><th scope="col">Weighting</th><th scope="col">Top-1</th><th scope="col">Top-3</th><th scope="col">Gap</th><th scope="col">P@25%</th><th scope="col">P@50%</th></tr></thead><tbody><tr><td>A</td><td>Linear</td><td>70%</td><td><strong>84%</strong></td><td>0.191</td><td>96%</td><td>90%</td></tr><tr class="ours"><td>A</td><td>Beta-Binomial BPA</td><td>70%</td><td>83%</td><td><strong>0.194</strong></td><td>96%</td><td>90%</td></tr><tr><td>A</td><td>Dirichlet BPA</td><td>70%</td><td><strong>84%</strong></td><td>0.187</td><td><strong>97%</strong></td><td>90%</td></tr><tr><td>B</td><td>Linear</td><td><strong>76%</strong></td><td>88%</td><td>0.208</td><td>99%</td><td>95%</td></tr><tr class="ours"><td>B</td><td>Beta-Binomial BPA</td><td>75%</td><td>88%</td><td><strong>0.214</strong></td><td>99%</td><td>95%</td></tr><tr><td>B</td><td>Dirichlet BPA</td><td>75%</td><td>88%</td><td>0.203</td><td>99%</td><td>95%</td></tr></tbody></table></div><div class="table-wrap" tabindex="0" role="region" aria-label="Table 3: selective prediction"><table class="res selective"><caption><b>Table 3.</b> Selective prediction from MANANA–Multi Beta-Binomial BPA confidence. Precision denotes top-1 exact-match accuracy within the retained subset.</caption><thead><tr><th rowspan="2" scope="col">Threshold / subset</th><th colspan="2" scope="colgroup" class="grp">Cohort A</th><th colspan="2" scope="colgroup" class="grp">Cohort B</th></tr><tr><th scope="col">Precision</th><th scope="col">Coverage</th><th scope="col">Precision</th><th scope="col">Coverage</th></tr></thead><tbody><tr><td>Confidence ≥ 0.95</td><td>97%</td><td>14%</td><td>99%</td><td>18%</td></tr><tr><td>Confidence ≥ 0.90</td><td>94%</td><td>33%</td><td>96%</td><td>40%</td></tr><tr><td>Confidence ≥ 0.85</td><td>86%</td><td>56%</td><td>92%</td><td>56%</td></tr><tr><td>Top 25% most confident</td><td>96%</td><td>25%</td><td>99%</td><td>25%</td></tr><tr><td>Top 50% most confident</td><td>90%</td><td>50%</td><td>95%</td><td>50%</td></tr><tr><td>All cases</td><td>70%</td><td>100%</td><td>75%</td><td>100%</td></tr></tbody></table></div>
-<figure class="paper-figure"><a href="assets/uncertainty.pdf" aria-label="Open full-resolution uncertainty plots"><img src="assets/uncertainty.webp" loading="lazy" alt="Paper plots of BPA confidence calibration and selective prediction across Cohorts A and B."></a><figcaption><b>Confidence calibration and selective prediction.</b> The paper’s BPA analysis relates confidence to physician-regimen agreement and the coverage–accuracy tradeoff. These retrospective results measure prescription agreement, not clinical outcomes.</figcaption></figure></section>
-<div class="container"><section class="sec" id="BibTeX"><div class="bib-head"><h2>BibTeX</h2><div><span class="copied" id="copied" role="status"></span><button class="copy" id="copy-bib" type="button">Copy</button></div></div><pre class="bib" id="bib">@misc{rajesh2026manana,
-  title={Teaching LLMs to Recommend and Defer in
-         Underrepresented Epilepsy Care},
-  author={Shreyas Rajesh and Kartik Sharma and Tonmoy Monsoor and
-          Mehmet Yigit Turali and Richard Idro and Juliana Kayaga and
-          Robert Sebunya and Tracy Tushabe Namata and
-          Jessica Nichole Pasqua and Vwani Roychowdhury and
-          Rajarshi Mazumder},
-  year={2026},
-  eprint={2606.31036},
-  archivePrefix={arXiv},
-  primaryClass={cs.LG},
-  url={https://arxiv.org/abs/2606.31036}
-}</pre></section></div>
-</main><footer><p><a href="https://github.com/roychowdhuryresearch/Manana">Code and learned prompt artifacts</a> · <a href="mailto:kartiksharma@g.ucla.edu,shreyasrajesh38@g.ucla.edu">Contact</a></p><p>Page template adapted from <a href="https://roychowdhuryresearch.github.io/PANINI-DR_Project_Page/">PANINI-DR</a>.</p></footer><script src="script.js"></script></body></html>
+<meta property="og:type" content="website">
+<meta property="og:title" content="MANANA: Teaching LLMs to Recommend and Defer in Underrepresented Epilepsy Care">
+<meta property="og:description" content="Learning local prescribing practice from clinic notes, and knowing when to defer to a specialist. NeurIPS 2026.">
+<meta property="og:url" content="https://roychowdhuryresearch.github.io/MANANA_Project_Page/">
+<meta property="og:image" content="https://roychowdhuryresearch.github.io/MANANA_Project_Page/assets/social.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://roychowdhuryresearch.github.io/MANANA_Project_Page/assets/social.png">
+
+<meta name="citation_title" content="Teaching LLMs to Recommend and Defer in Underrepresented Epilepsy Care">
+<meta name="citation_author" content="Rajesh, Shreyas">
+<meta name="citation_author" content="Sharma, Kartik">
+<meta name="citation_author" content="Monsoor, Tonmoy">
+<meta name="citation_author" content="Turali, Mehmet Yigit">
+<meta name="citation_author" content="Idro, Richard">
+<meta name="citation_author" content="Kayaga, Juliana">
+<meta name="citation_author" content="Sebunya, Robert">
+<meta name="citation_author" content="Namata, Tracy Tushabe">
+<meta name="citation_author" content="Pasqua, Jessica Nichole">
+<meta name="citation_author" content="Roychowdhury, Vwani">
+<meta name="citation_author" content="Mazumder, Rajarshi">
+<meta name="citation_publication_date" content="2026">
+<meta name="citation_conference_title" content="Advances in Neural Information Processing Systems (NeurIPS)">
+<meta name="citation_pdf_url" content="https://arxiv.org/pdf/2606.31036">
+<meta name="citation_arxiv_id" content="2606.31036">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;1,6..72,300;1,6..72,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<script>
+  document.documentElement.classList.add('js');
+  try { var t = localStorage.getItem('manana-theme'); if (t) document.documentElement.setAttribute('data-theme', t); } catch (e) {}
+</script>
+</head>
+<body>
+
+<nav class="topnav" id="topnav" aria-label="Sections">
+  <div class="inner">
+    <a class="brand" href="#top">Manana</a>
+    <div class="sections">
+      <a href="#overview">Overview</a>
+      <a href="#audit">Problem</a>
+      <a href="#method">Method</a>
+      <a href="#learned">What it learns</a>
+      <a href="#results">Results</a>
+      <a href="#defer">Deferral</a>
+      <a href="#evidence">Checks</a>
+      <a href="#limits">Limitations</a>
+      <a href="#bibtex">BibTeX</a>
+    </div>
+    <div class="mini">
+      <a href="https://arxiv.org/pdf/2606.31036" target="_blank" rel="noopener">Paper</a>
+      <a href="https://github.com/roychowdhuryresearch/Manana" target="_blank" rel="noopener">Code</a>
+    </div>
+  </div>
+</nav>
+
+<header class="container wide hero" id="top">
+  <p class="venue">NeurIPS 2026</p>
+  <h1 class="title">
+    <span class="name">Manana</span>
+    <span class="sub">Teaching LLMs to Recommend and Defer in Underrepresented Epilepsy&nbsp;Care</span>
+  </h1>
+  <svg class="eeg" id="eeg" viewBox="0 0 560 46" preserveAspectRatio="none" aria-hidden="true"></svg>
+  <p class="authors">
+    <span class="a"><a href="https://shrajesh.xyz/" target="_blank" rel="noopener">Shreyas Rajesh</a><sup>1,*</sup></span>
+    <span class="a"><a href="https://skartik04.github.io/" target="_blank" rel="noopener">Kartik Sharma</a><sup>1,*</sup></span>
+    <span class="a">Tonmoy Monsoor<sup>1</sup></span>
+    <span class="a"><a href="https://www.yigitturali.com/" target="_blank" rel="noopener">Mehmet Yigit Turali</a><sup>1</sup></span>
+    <span class="a">Richard Idro<sup>3</sup></span>
+    <span class="a">Juliana Kayaga<sup>3</sup></span>
+    <span class="a">Robert Sebunya<sup>4</sup></span>
+    <span class="a">Tracy Tushabe Namata<sup>3</sup></span>
+    <span class="a">Jessica Nichole Pasqua<sup>2</sup></span>
+    <span class="a"><a href="https://www.vwaniroychowdhury.com/" target="_blank" rel="noopener">Vwani Roychowdhury</a><sup>1</sup></span>
+    <span class="a">Rajarshi Mazumder<sup>2</sup></span>
+  </p>
+  <p class="affil">
+    <span><sup>1</sup>Electrical and Computer Engineering, UCLA</span>
+    <span><sup>2</sup>Neurology, UCLA</span>
+    <span><sup>3</sup>Makerere University</span>
+    <span><sup>4</sup>St. Francis Hospital Nsambya</span>
+  </p>
+  <p class="eq">*Equal contribution</p>
+  <div class="links">
+    <a class="btn" href="https://arxiv.org/pdf/2606.31036" target="_blank" rel="noopener"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 1h6.5L13 4.5V15H3V1zm6 1.2V5h2.8L9 2.2zM5 8h6v1H5V8zm0 2h6v1H5v-1zm0 2h4v1H5v-1z"/></svg>Paper</a>
+    <a class="btn" href="https://arxiv.org/abs/2606.31036" target="_blank" rel="noopener"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2.2 2h2.6l3.2 4.4L11.2 2h2.6L9.3 8l4.5 6h-2.6L8 9.6 4.8 14H2.2l4.5-6L2.2 2z"/></svg>arXiv</a>
+    <a class="btn" href="https://github.com/roychowdhuryresearch/Manana" target="_blank" rel="noopener"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 .2a8 8 0 0 0-2.5 15.6c.4.1.5-.2.5-.4v-1.5c-2.2.5-2.7-1-2.7-1-.4-.9-.9-1.2-.9-1.2-.7-.5.1-.5.1-.5.8.1 1.2.8 1.2.8.7 1.3 1.9.9 2.4.7.1-.5.3-.9.5-1.1-1.8-.2-3.6-.9-3.6-4 0-.9.3-1.6.8-2.1-.1-.2-.4-1 .1-2.1 0 0 .7-.2 2.2.8a7.4 7.4 0 0 1 4 0c1.5-1 2.2-.8 2.2-.8.4 1.1.2 1.9.1 2.1.5.6.8 1.3.8 2.1 0 3.1-1.9 3.8-3.7 4 .3.3.6.8.6 1.5v2.2c0 .2.1.5.6.4A8 8 0 0 0 8 .2z"/></svg>Code</a>
+    <a class="btn ghost" href="https://github.com/roychowdhuryresearch/Manana/blob/main/docs/artifacts/learned_artifacts.md" target="_blank" rel="noopener"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 3.5C2 2.7 2.7 2 3.5 2H7l1 1.5h4.5c.8 0 1.5.7 1.5 1.5v7.5c0 .8-.7 1.5-1.5 1.5h-9C2.7 14 2 13.3 2 12.5v-9zM5 7v1h6V7H5zm0 2.5v1h4v-1H5z"/></svg>Learned prompts</a>
+    <a class="btn ghost" href="#bibtex"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 2h12v12H2V2zm2 3v1.2h8V5H4zm0 2.4v1.2h8V7.4H4zm0 2.4V11h5V9.8H4z"/></svg>BibTeX</a>
+  </div>
+
+  <div class="stats" aria-label="Headline results">
+    <div class="stat hot"><div class="num">99%</div><div class="lbl">top-1 agreement with physicians on the most confident <b>25%</b> of visits <span>(Cohort B)</span></div></div>
+    <div class="stat hot"><div class="num">95%</div><div class="lbl">top-1 agreement on the most confident <b>50%</b>; the rest are deferred <span>(Cohort B)</span></div></div>
+    <div class="stat"><div class="num">+38.8<small>pts</small></div><div class="lbl">EM@3 over the unadapted base prompt <span>(Cohort A, paired 95% CI [33.6, 44.0])</span></div></div>
+    <div class="stat"><div class="num">50</div><div class="lbl">training patients. No weight updates; tested on <b>2</b> Ugandan cohorts <span>(699 patients, 2,549 visits)</span></div></div>
+  </div>
+</header>
+
+<main>
+
+<section class="container wide teaser" aria-label="Figure 1">
+  <figure class="reveal">
+    <div class="fig"><img src="assets/manana_diagram.webp" width="2400" height="1610" alt="MANANA workflow. A: the Predictor proposes three regimens per patient, the Inspector compares them with the physician prescription and writes candidate learnings into a shared buffer, and the Architect consolidates recurring signals into the next memory state, either a Single rule list or a Multi specialist population. B: at deployment, the memory trajectory is averaged with Bayesian prompt averaging into regimen probabilities; high-confidence cases assist the clinician and low-confidence cases are referred to a specialist."></div>
+    <figcaption><b>Figure 1.</b> <b>(A) Adaptation.</b> For each patient in a batch, the Predictor proposes three regimens using the current memory. The Inspector compares them with the physician's prescription and writes a candidate learning to an append-only buffer. Once per batch, the Architect commits only the signals that recur across patients, producing a Single rule list or a Multi set of specialist prompts. <b>(B) Deployment.</b> Bayesian prompt averaging treats the memory trajectory as an ensemble. It turns the trajectory's predictions into regimen probabilities, so a case is either recommended with confidence or deferred to a specialist.</figcaption>
+  </figure>
+</section>
+
+<section class="container wide sec" id="overview" aria-labelledby="overview-title">
+  <p class="kicker reveal"><span class="n">01</span> Overview</p>
+  <h2 id="overview-title" class="reveal">A decision-support system for epilepsy care has to <em>adapt</em> to local practice and <em>know when to step back</em>.</h2>
+  <div class="arc reveal">
+    <div>
+      <span class="step">THE PROBLEM</span>
+      <h4>The wrong prior, not missing knowledge</h4>
+      <p>General-purpose LLMs reach non-trivial agreement with Ugandan physicians' anti-seizure prescriptions. Neurologists who reviewed the reasoning traces found errors that follow Western prescribing defaults rather than local practice.</p>
+    </div>
+    <div>
+      <span class="step">THE METHOD</span>
+      <h4>Learn local practice from 50 patients</h4>
+      <p><b>Manana</b> turns prescription errors into an auditable prompt memory. No clinician writes the rules and the model weights never change. Lessons enter memory only when several patients support them.</p>
+    </div>
+    <div>
+      <span class="step">THE SAFEGUARD</span>
+      <h4>Recommend, or defer</h4>
+      <p><b>Bayesian prompt averaging (BPA)</b> treats the memory states from learning as an ensemble. Its posterior gives each visit a confidence score, and the least certain visits are routed to scarce specialists.</p>
+    </div>
+  </div>
+</section>
+
+<section class="container sec abstract" aria-labelledby="abstract-title">
+  <p class="kicker reveal">Abstract</p>
+  <h2 id="abstract-title" hidden>Abstract</h2>
+  <div class="reveal">
+    <p>Specialist epilepsy expertise is scarce in resource-constrained settings, creating a pressing need for decision-support tools that help frontline clinicians manage longitudinal treatment. Such systems must adapt to local prescribing practices and recognize when specialist review is needed. Most public medical AI benchmarks focus on high-income clinical settings, leaving prescribing practices, medication availability, and follow-up patterns in low-resource contexts largely unrepresented. We study this problem through a multidisciplinary collaboration focused on pediatric epilepsy care in Uganda. The task is to predict anti-seizure medication regimens from longitudinal unstructured notes collected by local clinicians across serial visits. General-purpose language models achieve non-trivial agreement with physician prescriptions, but neurologists' review of model reasoning traces shows that their errors reflect Western prescribing defaults that do not account for local clinical practices. We introduce <b>Manana</b>, a <b>non-parametric prompt-learning framework</b> that learns how to reason about local prescribing decisions from a small patient-level training set. Manana turns observed prescription errors into an auditable prompt memory, instantiated in single-agent and multi-agent variants, and outperforms classical ML models, direct LLM prompting, and prompt-optimization baselines across two independently collected Ugandan cohorts. The sequence of prompts produced during learning also provides a basis for estimating uncertainty. We exploit this through <b>Bayesian prompt averaging (BPA)</b>, which combines predictions across the learned prompt trajectory to produce prescription likelihoods and a deferral signal. Using the same Manana-Multi trajectory, BPA improves top-1 physician-regimen agreement from 66% to 70% on Cohort&nbsp;A and from 73% to 75% on Cohort&nbsp;B while preserving top-3 coverage. More consequentially, it enables clinically meaningful selective prediction: the system can auto-handle the most confident half of cases at <b>95% precision</b>, or the most confident quarter at <b>99% precision</b>, while deferring lower-confidence cases for specialist review. These results suggest a path toward locally adapted clinical LLM systems that learn from limited site-specific data and reserve scarce specialist attention for the cases where uncertainty is highest.</p>
+  </div>
+</section>
+
+<section class="container wide sec" id="audit" aria-labelledby="audit-title">
+  <p class="kicker reveal"><span class="n">02</span> Why a general LLM is not enough</p>
+  <h2 id="audit-title" class="reveal">Neurologists audited the model's reasoning. The errors were <em>systematic</em>.</h2>
+  <p class="lede reveal">We deliberately enriched the audit set for model errors. Two pediatric neurologists independently reviewed a single-agent LLM's reasoning on 20 Cohort&nbsp;A patients (60 visits). They often accepted the prediction while flagging a recurring gap in how the model reasoned about local practice.</p>
+  <div class="audit-meta reveal">
+    <span><b>120</b>neurologist–visit judgments</span>
+    <span><b>86.7%</b>LLM output accepted</span>
+    <span><b>0.87</b>Gwet's AC1 between reviewers</span>
+    <span><b>7</b>recurring failure modes</span>
+  </div>
+  <div class="modes reveal">
+    <div class="mode"><h4>Timeline drift</h4><p>Treats old medications as active or misses changes between visits.</p><span class="lens">Treatment tracking</span></div>
+    <div class="mode"><h4>Seizure classification</h4><p>Follows surface descriptions and misses the focal versus generalized distinction.</p><span class="lens">Diagnostics</span></div>
+    <div class="mode"><h4>Age and weight drift</h4><p>Carries forward outdated pediatric context and misses whether doses are adequate.</p><span class="lens">Pediatric dosing</span></div>
+    <div class="mode"><h4>Drug-availability blindness</h4><p>Recommends drugs with limited local access and underuses formulary drugs.</p><span class="lens">Local formulary</span></div>
+    <div class="mode"><h4>Monotherapy inertia</h4><p>Avoids escalation when the physician's trajectory supports polytherapy.</p><span class="lens">Escalation logic</span></div>
+    <div class="mode"><h4>Unsafe combinations</h4><p>Misses sedation and interaction risks in multi-drug regimens.</p><span class="lens">Safety review</span></div>
+    <div class="mode"><h4>Infection as trigger</h4><p>Treats every breakthrough seizure as a failure of the anti-seizure medication.</p><span class="lens">Tropical differential</span></div>
+  </div>
+  <blockquote class="quote reveal">“VPA is more commonly available than LEV and provided by the national formulary, and as such more frequently prescribed.”<cite>Neurologist 1, audit comment (verbatim excerpt)</cite></blockquote>
+
+  <div class="split reveal">
+    <div>
+      <h3 style="margin-top:0">From audit to <span style="font-variant:small-caps">Consilium</span></h3>
+      <p>We first encoded each failure mode as a specialist lens in <b>Consilium</b>, a hand-built council of doctor agents. An epileptologist agent synthesizes the specialists' reports, and a pharmacologist agent reviews the result for safety. Consilium is a strong reference system, but it depends on specialist feedback, does not learn from site data, and gives no confidence score.</p>
+      <p style="margin:0"><b>The question that drives Manana:</b> can an LLM discover equally useful corrections from patient notes and prescriptions alone, with no doctor in the loop?</p>
+    </div>
+    <figure><div class="fig"><img src="assets/consilium.webp" width="2000" height="1016" loading="lazy" alt="Consilium workflow: an orchestrator routes the visit to specialist agents; an epileptologist synthesizes ranked regimens; a pharmacologist reviews safety before final output."></div></figure>
+  </div>
+</section>
+
+<section class="container wide sec" id="method" aria-labelledby="method-title">
+  <p class="kicker reveal"><span class="n">03</span> How Manana learns</p>
+  <h2 id="method-title" class="reveal">Three roles, one rule: <em>only recurring lessons</em> become memory.</h2>
+  <p class="lede reveal">All three roles are calls to the same frozen LLM with different prompts. Learning runs for 15 rounds over 150 training visits from 50 patients. It produces a trajectory of readable memory states <i>m</i><sub>0</sub>, <i>m</i><sub>1</sub>, …, <i>m</i><sub>T</sub>, and no gradients are involved.</p>
+  <div class="roles reveal">
+    <div class="role">
+      <span class="tag">Role 1</span>
+      <h4>Predictor</h4>
+      <p>Reads the visit's notes, prior visits, and prior regimens, conditioned on the current memory. Returns three candidate regimens over the clinic's 10 anti-seizure medications.</p>
+      <div class="io">x<sub>i</sub>, m<sub>t−1</sub> → ŷ<sub>i,1:3</sub></div>
+    </div>
+    <div class="role">
+      <span class="tag">Role 2</span>
+      <h4>Inspector</h4>
+      <p>Compares the candidates with the physician's prescription. It writes a structured report and proposes one candidate learning grounded in the note.</p>
+      <div class="io">(x<sub>i</sub>, ŷ<sub>i,1:3</sub>, y<sub>i</sub>) → (ρ<sub>i</sub>, c<sub>i</sub>)</div>
+    </div>
+    <div class="role">
+      <span class="tag">Role 3</span>
+      <h4>Architect</h4>
+      <p>Reads the cumulative evidence buffer and the current batch reports, then makes a constrained update to memory.</p>
+      <div class="io">(m<sub>t−1</sub>, 𝒞<sub>t</sub>, ℛ<sub>t</sub>) → m<sub>t</sub></div>
+    </div>
+  </div>
+  <div class="quorum reveal">
+    <div class="q">N≥2</div>
+    <p><b>The quorum rule is the unit of update.</b> Candidate learnings collect in an append-only <b>evidence buffer</b> that records which visit produced each one. A lesson enters memory only when candidates from at least two distinct visits support it. TextGrad rewrites a whole prompt from per-batch textual gradients. Manana separates diagnosing an error from committing a lesson, so one unusual patient cannot rewrite the prescribing policy.</p>
+  </div>
+  <div class="variants reveal">
+    <div class="variant">
+      <h4>Manana-Single</h4>
+      <div class="what">Memory = a short list of correction rules</div>
+      <p>The Architect may append one rule per round, synthesized from recurring buffer evidence, or leave the list unchanged.</p>
+      <div class="chips"><span class="chip">+ Add</span><span class="chip">∅ None</span></div>
+    </div>
+    <div class="variant">
+      <h4>Manana-Multi</h4>
+      <div class="what">Memory = a population of specialist agents</div>
+      <p>Each specialist extracts one clinical signal for the Predictor and never prescribes. The Architect can spawn, edit, or prune specialists, with up to two actions per round and a target budget of five specialists.</p>
+      <div class="chips"><span class="chip">+ Spawn</span><span class="chip">✎ Edit</span><span class="chip">✂ Prune</span><span class="chip">∅ None</span></div>
+    </div>
+  </div>
+
+  <h3 class="reveal">Bayesian prompt averaging</h3>
+  <p class="reveal">Each memory state in the trajectory is a different regimen predictor. BPA keeps the <i>K</i>&nbsp;=&nbsp;5 states with the highest validation marginal likelihood. It weights them by posterior support, using a Beta-Binomial likelihood over where the physician's regimen falls among the three candidates, with temperature τ&nbsp;=&nbsp;5. It then merges their candidates into a single distribution over regimens.</p>
+  <div class="formula reveal">
+    p<sub>BPA</sub>(<span class="var">y</span> | <span class="var">x</span>) = Σ<sub><span class="var">k</span></sub> <span class="var">w<sub>k</sub></span> Σ<sub><span class="var">j</span>=1..3</sub> π<sub><span class="var">j</span></sub> 𝟙[ŷ<sub><span class="var">k,j</span></sub> = <span class="var">y</span>], &nbsp;&nbsp; <span class="var">w<sub>k</sub></span> ∝ exp{log p(𝒟<sub>val</sub> | <span class="var">m<sub>k</sub></span>) / τ}
+    <small>π = (0.85, 0.11, 0.04) is an empirical candidate-position prior. The posterior mass on the top regimen is the confidence score used for deferral.</small>
+  </div>
+</section>
+
+<section class="container wide sec" id="learned" aria-labelledby="learned-title">
+  <p class="kicker reveal"><span class="n">04</span> What each method learns</p>
+  <h2 id="learned-title" class="reveal">Same supervision, very different <em>artifacts</em>.</h2>
+  <p class="lede reveal">Every method sees only patient notes and the physician's prescribed drug set. The text each one learns shows why Manana generalizes. The artifacts below are representative of high-performing runs and are copied verbatim from the released repository.</p>
+
+  <div class="reveal">
+    <div class="tabs" role="tablist" aria-label="Learned artifact by method">
+      <button role="tab" id="t-textgrad" aria-controls="p-textgrad" aria-selected="false" tabindex="-1">TextGrad</button>
+      <button role="tab" id="t-expel" aria-controls="p-expel" aria-selected="false" tabindex="-1">ExpeL</button>
+      <button role="tab" id="t-dspy" aria-controls="p-dspy" aria-selected="false" tabindex="-1">DSPy-GEPA</button>
+      <button role="tab" id="t-single" class="ours" aria-controls="p-single" aria-selected="false" tabindex="-1">Manana-Single</button>
+      <button role="tab" id="t-multi" class="ours" aria-controls="p-multi" aria-selected="true" tabindex="0">Manana-Multi</button>
+    </div>
+
+    <div class="panel" role="tabpanel" id="p-textgrad" aria-labelledby="t-textgrad" hidden>
+      <div class="verdict">
+        <span class="kind">Rewritten global instruction</span>
+        <h4>Detailed prose, weak grounding</h4>
+        <p>The result reads like a guideline document. It commits to dose ranges, lab schedules, formulations, pill-burden caps, stocking assumptions, and a cost hierarchy, none of which can be recovered from a prescribed drug set.</p>
+        <div class="legend"><span><i class="l-unsup"></i>specifics the labels cannot support</span><span><i class="l-drug"></i>anti-seizure medication</span></div>
+      </div>
+      <div class="artifact" data-hl><ul>
+        <li>Primary generalized tonic-clonic seizures in Ugandan children are treated first-line with valproate monotherapy; <span class="unsup">dose 15-30 mg/kg/day, max 60 mg/kg/day</span>, with <span class="unsup">baseline liver-function tests before any dose change and repeat testing at 2 weeks then every 3 months</span>.</li>
+        <li>For <span class="unsup">children &gt;15 kg use 200 mg valproate tablets; for &lt;=15 kg use 100 mg/5 mL syrup, keeping volume &lt;=5 mL per dose</span>.</li>
+        <li>Focal-onset seizures are treated first-line with carbamazepine; <span class="unsup">start 5-10 mg/kg/day divided BID, titrate to &lt;=30 mg/kg/day, and limit to &lt;=15 mg/kg/day</span> in children with generalized hypertonia or cerebral palsy.</li>
+        <li>Levetiracetam is a modest-penalty adjunct after documented valproate failure, defined as <span class="unsup">&gt;=2 breakthrough seizures in 30 days</span> on therapeutic valproate; <span class="unsup">start 0.2 mg/kg/day BID, titrate to 5-10 mg/kg/day</span>, and obtain renal function before initiation.</li>
+        <li>Pill-burden constraint: <span class="unsup">total tablets per dose &lt;=2 and &lt;=4 tablets per day</span>; liquid formulations count as a single dose; exceed only for life-threatening seizure frequency.</li>
+        <li>Resource availability: <span class="unsup">valproate tablets stocked nationwide; syrup limited to referral hospitals</span>; carbamazepine tablets widely available; <span class="unsup">levetiracetam often stock-out at peripheral clinics</span>; phenobarbital universally stocked.</li>
+        <li>Cost hierarchy: <span class="unsup">zero-penalty agents are valproate, carbamazepine, and phenobarbital; modest-penalty agents are levetiracetam and lamotrigine; high-penalty agents are clobazam, clonazepam, ethosuximide, phenytoin, and topiramate</span>.</li>
+        <li>Monitoring schedule: <span class="unsup">valproate requires baseline LFT, repeat 2 weeks after change, then every 3 months; carbamazepine requires trough level after any dose increase &gt;5 mg/kg/day</span> or after breakthrough; <span class="unsup">phenobarbital requires platelet count and LFT every 6 months</span>.</li>
+      </ul></div>
+    </div>
+
+    <div class="panel" role="tabpanel" id="p-expel" aria-labelledby="t-expel" hidden>
+      <div class="verdict">
+        <span class="kind">Ranked experience memory</span>
+        <h4>Useful but generic</h4>
+        <p>The lessons are plausible prescribing heuristics: continue current drugs, prefer locally common first-line agents, dose by weight. They stay at the level of generic best practice and never name the drug- or seizure-specific local patterns behind cohort-level errors.</p>
+        <div class="legend"><span><i class="l-drug"></i>anti-seizure medication</span></div>
+      </div>
+      <div class="artifact" data-hl><ol>
+        <li>When several guideline-appropriate first-line drugs are suitable for initiation, select the medication most commonly used locally, considering safety, patient-specific factors, and documented physician preference.</li>
+        <li>When no current antiepileptic medication is documented, choose the appropriate first-line drug based on seizure type, epilepsy classification, age-specific safety, weight-based dosing, and the locally endorsed treatment hierarchy: formulary, cost, and common prescribing patterns.</li>
+        <li>When multiple drug actions are clinically justified, such as adverse effect, ineffectiveness, or need for addition, combine all necessary actions in a single option; otherwise limit each option to one clearly justified action.</li>
+        <li>Prioritize continuation of a drug that is already prescribed unless the notes explicitly indicate ineffectiveness, adverse effects, or a need for change.</li>
+        <li>For pediatric patients, calculate the antiepileptic dose using the most recent weight measurement, apply the recommended mg/kg range, and round to the nearest available tablet or syrup strength.</li>
+        <li>Before stopping a medication, verify that it has been initiated for at least 4 weeks without reported adverse effects or lack of efficacy; recent initiation without issues warrants continuation unless the notes explicitly advise otherwise.</li>
+      </ol></div>
+    </div>
+
+    <div class="panel" role="tabpanel" id="p-dspy" aria-labelledby="t-dspy" hidden>
+      <div class="verdict">
+        <span class="kind">Optimized program instruction</span>
+        <h4>A sharper interface, no clinical memory</h4>
+        <p>GEPA improves how the task is posed: it parses explicit directives, enforces the output format, checks dose adequacy, and guards against unnecessary additions. It has no place where cross-patient lessons can build up over rounds.</p>
+        <div class="legend"><span><i class="l-drug"></i>anti-seizure medication</span></div>
+      </div>
+      <div class="artifact" data-hl><pre>Task: Predict the antiepileptic drug (ASM) prescription for a patient seen at the
+Uganda epilepsy clinic, based solely on the free-text clinical notes provided.
+The output must be three ranked regimen options, each showing the drug name
+followed by an action (continue, start, or stop). The reasoning must be brief.
+
+INPUT FORMAT
+The only input the model will receive is a single string called clinical_notes.
+The notes contain:
+- Patient demographics (age, sex, weight, etc.)
+- Clinical history, seizure description, examination findings
+- Investigation results (EEG, imaging)
+- A "Current drug regimen" section that may list one or more ASMs, sometimes with
+  dosing instructions or a date of initiation.
+- A separate "Prescription" or "Plan" section that may contain explicit instructions
+  such as "start carbamazepine", "stop valproate", "step sodium valproate to 500 mg
+  BD", "increase dose", "add clobazam", etc.
+
+OUTPUT FORMAT
+The assistant must return exactly three options in the order option_1, option_2,
+option_3. Each option is a comma-separated list of &lt;drug&gt;:&lt;action&gt; pairs.
+- &lt;drug&gt; must be one of the allowed drug names exactly as written:
+  carbamazepine, clobazam, clonazepam, ethosuximide, lamotrigine, levetiracetam,
+  phenobarbital, phenytoin, topiramate, valproate
+- &lt;action&gt; must be one of: continue, start, stop
+No other text, punctuation, or formatting is allowed.
+
+Example:
+  option_1: valproate:continue
+  option_2: valproate:continue, levetiracetam:start
+  option_3: valproate:stop, lamotrigine:start
+
+After the three options, include a short reasoning paragraph (1-2 sentences) that
+explains why the options were chosen. The reasoning must not list doses, dates, or
+any information that is not needed for the decision.
+
+GENERAL PRINCIPLES FOR GENERATING THE REGIMENS
+
+1. Follow explicit prescription language.
+   - "start X", "add X", or "initiate X"           -&gt; &lt;drug&gt;:start
+   - "stop X", "discontinue X", or "withdraw X"    -&gt; &lt;drug&gt;:stop
+   - "continue X", "maintain X", or the drug appears in the "Current drug regimen"
+     without any stop/start directive               -&gt; &lt;drug&gt;:continue
+
+2. Dose-adequacy check (pediatric patients only).
+   - When the patient is &lt; 18 years old and the current dose of a drug is clearly
+     below the typical therapeutic range (see table below), assume the clinician
+     is titrating the dose; do not add another ASM.
+   - Only suggest adding a new drug if the notes explicitly describe refractory
+     seizures after an adequate dose has been reached, or if a second drug is
+     directly mentioned.
+
+3. Weight-based therapeutic ranges (approximate, for dose-adequacy assessment).
+   | Drug           | Approx. daily dose range (mg/kg/day) |
+   |----------------|--------------------------------------|
+   | carbamazepine  | 15-20                                 |
+   | clobazam       | 0.2-0.5                               |
+   | clonazepam     | 0.01-0.03                             |
+   | ethosuximide   | 20-30                                 |
+   | lamotrigine    | 5-10                                  |
+   | levetiracetam  | 20-40                                 |
+   | phenobarbital  | 3-5                                   |
+   | phenytoin      | 5-7                                   |
+   | topiramate     | 5-9                                   |
+   | valproate      | 30-40                                 |
+
+   If the note provides a total daily dose (sum of all administrations) that is
+   less than the lower bound of the range multiplied by the patient's weight,
+   treat the regimen as "dose-under-titrated".
+
+4. Ranking the three options.
+   - Option 1: the regimen that matches the clinician's explicit orders exactly.
+   - Option 2: a clinically reasonable alternative only if the clinician's order
+     appears to be a dose change or titration (i.e., the drug is being continued
+     at a sub-therapeutic dose). Keep the same primary drug and add a second drug
+     only if the notes explicitly mention refractory seizures after an adequate
+     dose, or a clear need for adjunct therapy.
+   - Option 3: a fallback regimen that follows standard practice for the presented
+     seizure type when the clinician's intent is ambiguous (e.g., switch to a
+     broader-spectrum agent). This option must still respect the "no unnecessary
+     polytherapy" rule and must not introduce drugs not mentioned anywhere in the
+     notes.
+
+5. Avoid over-prescribing.
+   - Never add a drug that is not mentioned in the notes unless it is required by
+     the ranking rule (Option 2 or 3) and the clinician has clearly indicated that
+     monotherapy is insufficient after an adequate dose.
+   - Do not suggest "stop" for a drug unless the notes explicitly request
+     discontinuation or indicate a clear switch to another agent.
+
+6. Handling ambiguous or missing information.
+   - If no current regimen is described, infer that the patient is drug-naive.
+     In that case, the most plausible first-line drug (based on seizure type
+     described in the notes) becomes the "start" action in Option 1.
+   - If seizure type is not specified, default to valproate as a broad-spectrum
+     agent for children, unless contraindicated by the notes.
+
+7. Concise reasoning.
+   - Summarize in one or two sentences why the three options were chosen,
+     referencing only the key signals (e.g., "physician explicitly instructed
+     continuation of carbamazepine; dose appears sub-therapeutic, so a
+     titration-only option is offered as option 2; option 3 proposes a
+     broader-spectrum switch if refractory").
+
+EXAMPLE (for illustration only -- do not output this)
+clinical_notes: "...Current drug regimen: carbamazepine 100 mg od. Prescription:
+                 increase to 100 mg bd..."
+Output:
+  reasoning: The clinician is titrating carbamazepine upward; no second drug is
+             mentioned.
+  option_1: carbamazepine:continue
+  option_2: carbamazepine:continue, levetiracetam:start
+  option_3: carbamazepine:stop, valproate:start
+
+Follow these rules exactly to produce the three ranked regimen options and the
+brief reasoning.</pre></div>
+    </div>
+
+    <div class="panel" role="tabpanel" id="p-single" aria-labelledby="t-single" hidden>
+      <div class="verdict">
+        <span class="kind">Quorum-gated rule list</span>
+        <h4>Compact, evidence-gated rules</h4>
+        <p>Each rule survived the Architect's cross-patient quorum and names specific drugs and situations. One example: add levetiracetam before changing a tolerated carbamazepine regimen. Another: do not escalate after a single fever-related breakthrough seizure. A clinician can audit the memory line by line.</p>
+        <div class="legend"><span><i class="l-drug"></i>anti-seizure medication</span></div>
+      </div>
+      <div class="artifact" data-hl><ol>
+        <li>When a pediatric patient is already on a tolerated antiseizure medication with documented seizure control and no adverse effects, and the clinical note contains no explicit instruction to modify therapy, continue the current drug and dose unchanged.</li>
+        <li>For pediatric focal epilepsy where carbamazepine is tolerated and at a therapeutic dose but seizures remain partially controlled, add levetiracetam as adjunctive therapy before changing the primary agent.</li>
+        <li>In Lennox-Gastaut syndrome, when a patient is already receiving valproate and experiences breakthrough seizures, add clobazam as an adjunctive agent rather than increasing the valproate dose; discontinue carbamazepine if it is part of the regimen because it can exacerbate drop attacks.</li>
+        <li>For pediatric patients with generalized genetic epilepsy, valproate monotherapy is the preferred first-line antiseizure medication; if the child is already on valproate, seizure-free, and tolerating the drug, continue the regimen unchanged.</li>
+        <li>In infants and young children with focal epilepsy who remain symptomatic on a sodium-channel blocker, phenobarbital is an appropriate first add-on antiseizure medication, particularly in low-resource settings where it is readily available and tolerated.</li>
+        <li>In children on stable valproate therapy, a solitary fever-related breakthrough seizure does not warrant dose escalation or medication change; continue the current valproate dose unless the clinician explicitly orders a modification.</li>
+        <li>If the clinical note explicitly instructs continuation of the current antiseizure medication at the same dose, maintain that regimen unchanged, even if seizures are ongoing, unless a contradictory directive to modify therapy is present.</li>
+        <li>When a medication is prescribed with a specific limited duration or is absent from the current prescription list without an explicit instruction to continue, assume the drug has been discontinued and do not automatically carry it forward to subsequent visits.</li>
+      </ol></div>
+    </div>
+
+    <div class="panel" role="tabpanel" id="p-multi" aria-labelledby="t-multi">
+      <div class="verdict">
+        <span class="kind">Learned specialist population</span>
+        <h4>Specialists, not prescribers</h4>
+        <p>The Architect turned recurring errors into five signal extractors. Each surfaces one clinical observation for the Predictor and never writes the prescription, so the memory can be audited as signal extraction rather than a hidden decision policy.</p>
+        <div class="legend"><span><i class="l-drug"></i>anti-seizure medication</span></div>
+      </div>
+      <div class="artifact agents" data-hl>
+        <div class="agent"><div class="nm">Explicit_Drug_Directive_Agent</div><p>Identify every antiepileptic drug mentioned in the current or prior regimen. For each drug, determine whether the clinician explicitly states to continue, increase, decrease, stop, add, or start that drug. If the note contains an explicit continuation directive with no mention of new or discontinued drugs, state that the regimen should be maintained unchanged and do not suggest adjuncts or stops.</p></div>
+        <div class="agent"><div class="nm">Formulary_Adjunct_Agent</div><p>Act as a clinical pharmacology specialist aware of the clinic's local formulary and cost considerations. When the note describes uncontrolled seizures despite a first-line antiepileptic and mentions formulary or affordability constraints, assess whether carbamazepine is listed as a recommended adjunct in this setting.</p></div>
+        <div class="agent"><div class="nm">Seizure_Semiology_Agent</div><p>Identify whether the note describes focal, generalized, multifocal, or mixed seizures. Note focal components even when the overall diagnosis is multifocal or generalized, and state which seizure-type signals may influence antiepileptic selection.</p></div>
+        <div class="agent"><div class="nm">Carbamazepine_Consideration_Agent</div><p>Evaluate carbamazepine or oxcarbazepine as a first-line or adjunct antiepileptic. Examine seizure type, prior drug exposure, local formulary or cost constraints, contraindications, and any statement that a new AED was initiated.</p></div>
+        <div class="agent"><div class="nm">EEG_Broad_Spectrum_Agent</div><p>Scan EEG, neuroimaging, and cerebral dysfunction findings. If they indicate generalized, mixed, or diffuse seizure pathology, surface a signal that broad-spectrum antiepileptic coverage such as valproate should be considered.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="container wide sec" id="results" aria-labelledby="results-title">
+  <p class="kicker reveal"><span class="n">05</span> Results</p>
+  <h2 id="results-title" class="reveal">Trained on Cohort A. Holds up on an <em>independently collected</em> Cohort B.</h2>
+  <p class="lede reveal">Cohort&nbsp;A has 332 patients and 1,040 visits, recorded in a clinic spreadsheet. Cohort&nbsp;B has 367 patients and 1,509 visits, recorded as clinic PDFs, and differs in clinicians, documentation, patients, and prescribing patterns. Every method learns from 50 Cohort&nbsp;A patients and validates on 20, over five seeds. The test sets are the remaining Cohort&nbsp;A patients and all of Cohort&nbsp;B. The base LLM is gpt-oss-120b.</p>
+
+  <div class="split reveal" style="margin-top:8px">
+    <div>
+      <p><b>The metric is EM@3.</b> A visit counts as correct when one of the three proposed regimens <i>exactly</i> matches the active drug set the treating physician prescribed. We report monotherapy (one drug) and polytherapy (two or more) separately. Polytherapy is harder because the full combination must be recovered.</p>
+      <p style="margin:0">EM@3 measures <b>agreement with local physicians</b>, not whether a treatment is optimal or improves outcomes.</p>
+    </div>
+    <figure><div class="fig"><img src="assets/drug_fingerprint.webp" width="1800" height="1090" loading="lazy" alt="Bar chart of the percentage of patients prescribed each anti-seizure medication in Cohort A and Cohort B, showing different medication-use fingerprints."></div>
+      <figcaption>Medication use differs between the cohorts. Cohort&nbsp;A centers on carbamazepine and valproate; Cohort&nbsp;B has more polytherapy.</figcaption></figure>
+  </div>
+
+  <div class="toolbar reveal">
+    <div class="seg" role="group" aria-label="Cohort">
+      <button type="button" data-cohort="A" aria-pressed="true">Cohort A<span style="opacity:.6"> · held-out patients</span></button>
+      <button type="button" data-cohort="B" aria-pressed="false">Cohort B<span style="opacity:.6"> · transfer</span></button>
+    </div>
+    <span class="note">Mean ± std over 5 seeds · <span style="background:var(--teal-soft);color:var(--teal-ink);padding:1px 6px;border-radius:5px;font-weight:600">best</span> in column</span>
+  </div>
+  <div class="table-wrap reveal">
+    <table id="main-table">
+      <caption><b>Table 1.</b> Top-3 exact match (%) by regimen complexity and visit (V1–V3). EpiPick is an external rule-based monotherapy tool, so it has no polytherapy scores. Single-agent is a clinician-refined direct prompt. DSPy uses the GEPA optimizer. All prompt-learning methods start from the same Base Prompt.</caption>
+      <thead>
+        <tr class="grp"><th></th><th colspan="3" class="lined">Monotherapy</th><th colspan="3" class="lined">Polytherapy</th></tr>
+        <tr><th>Method</th><th>V1</th><th>V2</th><th>V3</th><th>V1</th><th>V2</th><th>V3</th></tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <div class="mini-grid reveal">
+    <div class="mini">
+      <div class="big">+38.8<small> / +33.7 pts</small></div>
+      <h4>Over the base prompt</h4>
+      <p>Aggregate EM@3 gain of Manana-Multi on Cohorts A and B. Paired hierarchical bootstrap over seeds and patients, 10,000 replicates.</p>
+      <div class="ci">95% CI [33.6, 44.0] · [29.0, 38.4]</div>
+    </div>
+    <div class="mini">
+      <div class="big">55.6<small>%</small></div>
+      <h4>When the regimen changes</h4>
+      <p>Physicians keep the same regimen in 76.6% of Cohort&nbsp;B later visits. On the visits where they <i>change</i> it, Manana-Multi has the highest EM@3: TextGrad scores 41.7, DSPy 50.8, ExpeL 51.6.</p>
+      <div class="ci">Cohort B, V2/V3 change visits</div>
+    </div>
+    <div class="mini">
+      <div class="big">86.0<small>%</small></div>
+      <h4>On visits with documented improvement</h4>
+      <p>EM@3 on Cohort&nbsp;A follow-ups annotated "Reduced" or "Seizure-free", against 84.2 for DSPy and 80.7 for single-agent. This is descriptive and does not validate the selected regimen.</p>
+      <div class="ci">Cohort A, 342 visits</div>
+    </div>
+  </div>
+  <p class="reveal" style="font-size:14px;color:var(--muted);margin-top:14px">The paired bootstrap does not separate every comparison. Manana-Multi minus DSPy-GEPA is +3.3 [0.5, 6.0] on Cohort&nbsp;A but +2.1 [−0.3, 4.2] on Cohort&nbsp;B. Manana-Multi minus Manana-Single is +4.0 [1.6, 6.4] on A and +1.2 [−1.6, 4.0] on B.</p>
+</section>
+
+<section class="container wide sec" id="defer" aria-labelledby="defer-title">
+  <p class="kicker reveal"><span class="n">06</span> Recommend or defer</p>
+  <h2 id="defer-title" class="reveal">Set the threshold to match your clinic's <em>specialist capacity</em>.</h2>
+  <p class="lede reveal">On the same Manana-Multi trajectory, BPA raises top-1 agreement from 66% to 70% on Cohort&nbsp;A and from 73% to 75% on Cohort&nbsp;B while keeping top-3 coverage. Majority voting over the same trajectory matches its top-3 coverage but gives no probability distribution to defer on. BPA's posterior mass works as a confidence score: higher confidence means more agreement on fewer cases.</p>
+
+  <div class="defer reveal" id="defer-app">
+    <div class="controls">
+      <div>
+        <div class="label">Cohort</div>
+        <div class="seg" role="group" aria-label="Cohort for deferral">
+          <button type="button" data-dcohort="A" aria-pressed="false">Cohort A</button>
+          <button type="button" data-dcohort="B" aria-pressed="true">Cohort B</button>
+        </div>
+      </div>
+      <div>
+        <div class="label">Operating point <span style="text-transform:none;letter-spacing:0">(precision · coverage)</span></div>
+        <div class="ops" id="ops" role="group" aria-label="Operating point"></div>
+      </div>
+      <p class="fine">Values come from Table 3 of the paper (Manana-Multi, Beta-Binomial BPA, held-out test sets). The 100-square grid rounds the reported coverage and precision. The thresholds were chosen on held-out data to show the trade-off; a deployed clinic must fix its threshold in advance.</p>
+    </div>
+    <div>
+      <div class="readout">
+        <div class="r prec"><div class="v" id="d-prec">95%</div><div class="k">top-1 agreement with the physician on visits the system handles</div></div>
+        <div class="r"><div class="v" id="d-cov">50%</div><div class="k">of visits handled; the rest go to specialist review</div></div>
+      </div>
+      <div style="margin:20px 0 6px" aria-hidden="true"><div class="waffle" id="waffle"></div></div>
+      <div class="wlegend" aria-hidden="true"><span><i class="ok"></i>handled, agrees</span><span><i class="miss"></i>handled, disagrees</span><span><i class="df"></i>deferred to specialist</span></div>
+      <p class="sentence" id="d-sentence" style="margin-top:16px" aria-live="polite"></p>
+    </div>
+  </div>
+
+  <figure class="reveal" style="margin-top:26px">
+    <div class="fig"><img src="assets/bpa_uncertainty_compact.webp" width="2400" height="1179" loading="lazy" alt="Left and middle: reliability diagrams for Cohorts A and B, where BPA confidence tracks empirical top-1 precision near the diagonal. Right: deferral rate versus precision curves; at 50% deferral, Manana-Multi on Cohort B reaches 95% precision."></div>
+    <figcaption><b>Confidence and deferral.</b> Left and middle: BPA confidence follows empirical top-1 agreement on both cohorts; the dotted diagonal marks perfect calibration. Right: precision on non-deferred cases rises as more low-confidence cases are deferred. Dashed lines are Manana-Single and solid lines are Manana-Multi.</figcaption>
+  </figure>
+
+  <div class="table-wrap reveal" style="margin-top:22px">
+    <table>
+      <caption><b>Table 2.</b> BPA weighting ablation on the same Manana-Multi trajectory. Three different weighting rules give nearly the same deferral signal, so it does not depend on a fragile choice. Gap is the mean top-1 confidence on correct predictions minus that on incorrect ones; P@k is top-1 precision on the most confident k% of cases.</caption>
+      <thead><tr><th>Cohort · Weighting</th><th>Top-1</th><th>Top-3</th><th>Gap</th><th>P@25%</th><th>P@50%</th></tr></thead>
+      <tbody>
+        <tr><td>A · Linear</td><td>70%</td><td>84%</td><td>0.191</td><td>96%</td><td>90%</td></tr>
+        <tr class="ours"><td>A · Beta-Binomial BPA</td><td>70%</td><td>83%</td><td>0.194</td><td>96%</td><td>90%</td></tr>
+        <tr><td>A · Dirichlet BPA</td><td>70%</td><td>84%</td><td>0.187</td><td>97%</td><td>90%</td></tr>
+        <tr><td>B · Linear</td><td>76%</td><td>88%</td><td>0.208</td><td>99%</td><td>95%</td></tr>
+        <tr class="ours"><td>B · Beta-Binomial BPA</td><td>75%</td><td>88%</td><td>0.214</td><td>99%</td><td>95%</td></tr>
+        <tr><td>B · Dirichlet BPA</td><td>75%</td><td>88%</td><td>0.203</td><td>99%</td><td>95%</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section class="container wide sec" id="evidence" aria-labelledby="evidence-title">
+  <p class="kicker reveal"><span class="n">07</span> Stress tests</p>
+  <h2 id="evidence-title" class="reveal">Does it hold beyond the headline <em>setting</em>?</h2>
+  <p class="lede reveal">The appendix tests a public US dataset, medical-tuned models, transfer between model sizes, and component ablations, and it compares Manana with the expert-designed Consilium. Each card shows one representative slice; the paper has the full tables.</p>
+  <div class="checks">
+    <div class="check reveal">
+      <span class="tag">Public data · MIMIC-IV</span>
+      <h4>Reproducible on US inpatient epilepsy admissions</h4>
+      <p>1,977 admissions with a primary epilepsy diagnosis and 15 anti-seizure medications. These are adult discharge summaries with discharge-side text removed to prevent leakage, a different setting from Uganda.</p>
+      <div class="cmp" data-max="100">
+        <div class="row us"><span>Manana-Multi</span><div class="track"><i data-w="47.3"></i></div><b>47.3</b></div>
+        <div class="row"><span>Manana-Single</span><div class="track"><i data-w="40.0"></i></div><b>40.0</b></div>
+        <div class="row"><span>Base Prompt</span><div class="track"><i data-w="36.0"></i></div><b>36.0</b></div>
+        <div class="row"><span>TextGrad</span><div class="track"><i data-w="32.7"></i></div><b>32.7</b></div>
+        <div class="row"><span>ExpeL</span><div class="track"><i data-w="28.7"></i></div><b>28.7</b></div>
+      </div>
+      <div class="src">EM@3 (%), held-out test split. Polytherapy EM@3: 39.8 for Manana-Multi vs 24.5 for the base prompt.</div>
+    </div>
+    <div class="check reveal">
+      <span class="tag">Backbones · medical LLMs</span>
+      <h4>The gain comes from learning, not medical pretraining</h4>
+      <p>Medical-tuned models with the same base prompt improve over general gpt-oss-120b, but they fall short of gpt-oss-120b with Manana on both cohorts and both regimen strata.</p>
+      <div class="cmp">
+        <div class="row us"><span>Manana-Multi</span><div class="track"><i data-w="72.6"></i></div><b>72.6</b></div>
+        <div class="row"><span>OpenBio-70B</span><div class="track"><i data-w="62.3"></i></div><b>62.3</b></div>
+        <div class="row"><span>MedGemma-27B</span><div class="track"><i data-w="54.5"></i></div><b>54.5</b></div>
+        <div class="row"><span>HuatuoGPT-72B</span><div class="track"><i data-w="42.9"></i></div><b>42.9</b></div>
+        <div class="row"><span>gpt-oss-120b base</span><div class="track"><i data-w="30.2"></i></div><b>30.2</b></div>
+      </div>
+      <div class="src">EM@3 (%), Cohort A polytherapy, visit 3.</div>
+    </div>
+    <div class="check reveal">
+      <span class="tag">Transfer · 120B → 20B</span>
+      <h4>Learned memory is portable guidance</h4>
+      <p>Memory learned by the 120B model and inserted unchanged into the 20B model beats the 20B model's own learned memory on 5 of 6 cohort–visit pairs. Adaptation can run offline on a large model while inference runs on a small one.</p>
+      <div class="cmp">
+        <div class="row us"><span>Manana 120B→20B</span><div class="track"><i data-w="72.5"></i></div><b>72.5</b></div>
+        <div class="row"><span>TextGrad 120B→20B</span><div class="track"><i data-w="68.3"></i></div><b>68.3</b></div>
+        <div class="row"><span>Manana native 20B</span><div class="track"><i data-w="66.1"></i></div><b>66.1</b></div>
+        <div class="row"><span>TextGrad native 20B</span><div class="track"><i data-w="61.8"></i></div><b>61.8</b></div>
+      </div>
+      <div class="src">EM@3 (%), 20B evaluator, Cohort A visit 1, mean of 5 seeds.</div>
+    </div>
+    <div class="check reveal">
+      <span class="tag">Ablations</span>
+      <h4>Every component carries weight</h4>
+      <p>Removing the evidence buffer, the Inspector, the Architect, or the quorum rule, or replacing learning with in-context examples, lowers EM@3 in every cohort–visit cell we report.</p>
+      <div class="cmp">
+        <div class="row us"><span>Full Manana-Multi</span><div class="track"><i data-w="77.1"></i></div><b>77.1</b></div>
+        <div class="row"><span>no buffer</span><div class="track"><i data-w="70.6"></i></div><b>70.6</b></div>
+        <div class="row"><span>no quorum</span><div class="track"><i data-w="67.7"></i></div><b>67.7</b></div>
+        <div class="row"><span>no Inspector</span><div class="track"><i data-w="66.1"></i></div><b>66.1</b></div>
+      </div>
+      <div class="src">EM@3 (%), Cohort A visit 1.</div>
+    </div>
+    <div class="check reveal">
+      <span class="tag">Expert reference · Consilium</span>
+      <h4>Matches a doctor-designed council without doctors in the loop</h4>
+      <p>Manana with BPA meets or beats Consilium in 5 of 6 cohort–visit cells, and Consilium stays slightly ahead on Cohort&nbsp;A visit 1 (79.5 vs 79.0). Only Manana yields regimen probabilities and a deferral policy.</p>
+      <div class="cmp">
+        <div class="row us"><span>Manana + BPA</span><div class="track"><i data-w="92.8"></i></div><b>92.8</b></div>
+        <div class="row"><span>Consilium</span><div class="track"><i data-w="86.8"></i></div><b>86.8</b></div>
+        <div class="row"><span>All-agents-combined</span><div class="track"><i data-w="79.0"></i></div><b>79.0</b></div>
+        <div class="row"><span>Single-agent</span><div class="track"><i data-w="71.8"></i></div><b>71.8</b></div>
+      </div>
+      <div class="src">Aggregate EM@3 (%), Cohort B visit 3.</div>
+    </div>
+    <div class="check reveal">
+      <span class="tag">Clinician review</span>
+      <h4>More coherent options</h4>
+      <p>A neurologist reviewed Manana-Multi and Consilium side by side on 120 system–visit outputs. Manana tended to propose related variants of one plan, while Consilium sometimes proposed plausible options that pointed in different directions.</p>
+      <blockquote class="quote" style="margin:4px 0 0;font-size:17px;padding:14px 18px">“all three recommendations are concordant”<cite>Reviewer comment on Manana-Multi (System B)</cite></blockquote>
+      <div class="src">Qualitative audit; ratings were near ceiling for both systems.</div>
+    </div>
+  </div>
+</section>
+
+<section class="container wide sec" id="limits" aria-labelledby="limits-title">
+  <p class="kicker reveal"><span class="n">08</span> Limitations and responsible use</p>
+  <h2 id="limits-title" class="reveal">What these results <em>do not</em> show.</h2>
+  <div class="limits">
+    <div class="limit reveal">
+      <h4>Agreement, not optimality</h4>
+      <p>The endpoint is agreement with the regimen the treating physician chose. Local prescriptions reflect clinical judgment and also formulary limits, availability, cost, and follow-up constraints. A model that matches local practice may also learn those resource constraints. Predicting seizure freedom or reduction directly is ongoing work.</p>
+    </div>
+    <div class="limit reveal">
+      <h4>A retrospective confidence score</h4>
+      <p>BPA gives a confidence score measured retrospectively, not a deployment-ready deferral rule. The thresholds here were chosen on held-out data to show the coverage–accuracy trade-off. A clinic would need to fix its threshold in advance, monitor it as the patient mix shifts, and tie it to a clear review workflow for deferred cases.</p>
+    </div>
+  </div>
+  <div class="notice reveal"><b>Not validated for autonomous prescribing.</b> Any prospective use would need de-identification and access controls, clinician oversight of every recommendation, site-specific prospective validation, referral thresholds pre-specified on separate calibration data, calibration and drift monitoring, audit logs, and mandatory specialist review of low-confidence or out-of-scope cases.</div>
+</section>
+
+<section class="container wide sec" id="bibtex" aria-labelledby="bib-title">
+  <p class="kicker reveal"><span class="n">09</span> Citation</p>
+  <h2 id="bib-title" class="reveal">BibTeX</h2>
+  <div class="bib reveal">
+    <button class="copy" type="button" id="copy-bib">Copy</button>
+<pre id="bib-text">@inproceedings{rajesh2026manana,
+  title     = {Teaching {LLMs} to Recommend and Defer in Underrepresented Epilepsy Care},
+  author    = {Rajesh, Shreyas and Sharma, Kartik and Monsoor, Tonmoy and
+               Turali, Mehmet Yigit and Idro, Richard and Kayaga, Juliana and
+               Sebunya, Robert and Namata, Tracy Tushabe and
+               Pasqua, Jessica Nichole and Roychowdhury, Vwani and
+               Mazumder, Rajarshi},
+  booktitle = {Advances in Neural Information Processing Systems},
+  year      = {2026},
+  eprint    = {2606.31036},
+  archivePrefix = {arXiv},
+  url       = {https://arxiv.org/abs/2606.31036}
+}</pre>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="container wide cols">
+    <div>
+      <h4>Acknowledgments</h4>
+      <p>This work was supported by a Global Health Seed Grant from the David Geffen School of Medicine at UCLA. Rajarshi Mazumder was supported by the Fogarty International Center of the National Institutes of Health under Award Number K01TW012178. The content is solely the responsibility of the authors and does not necessarily represent the official views of the National Institutes of Health.</p>
+      <p>Page layout inspired by the <a href="https://roychowdhuryresearch.github.io/PANINI-DR_Project_Page/" target="_blank" rel="noopener">PANINI-DR project page</a>.</p>
+    </div>
+    <div>
+      <h4>Contact</h4>
+      <p><a href="mailto:kartiksharma@g.ucla.edu">kartiksharma@g.ucla.edu</a><br><a href="mailto:shreyasrajesh38@g.ucla.edu">shreyasrajesh38@g.ucla.edu</a><br><a href="mailto:vwani@ee.ucla.edu">vwani@ee.ucla.edu</a><br><a href="mailto:rmazumder@mednet.ucla.edu">rmazumder@mednet.ucla.edu</a></p>
+      <button class="theme-toggle" type="button" id="theme-toggle">Toggle theme</button>
+    </div>
+  </div>
+</footer>
+
+<script src="script.js" defer></script>
+</body>
+</html>
