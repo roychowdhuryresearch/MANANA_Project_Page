@@ -10,5 +10,3 @@ Preview locally with `python -m http.server 8000`.
 All numbers on the page come from the camera-ready paper. The learned artifacts are copied verbatim from
 [`docs/artifacts/learned_artifacts.md`](https://github.com/roychowdhuryresearch/Manana/blob/main/docs/artifacts/learned_artifacts.md).
 Figures in `assets/` are rendered from the paper's figure PDFs.
-
-Layout inspired by the [PANINI-DR project page](https://github.com/roychowdhuryresearch/PANINI-DR_Project_Page).
