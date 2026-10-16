@@ -358,21 +358,7 @@ footer h4 { font: 600 12px/1 var(--mono); letter-spacing: .12em; text-transform:
 footer p { margin: 0 0 8px; }
 @media (max-width: 760px) { footer .cols { grid-template-columns: 1fr; } }
 
-/* ---------------- motion ---------------- */
-.js .reveal { opacity: 0; transform: translateY(14px); transition: opacity .7s ease, transform .7s cubic-bezier(.2, .7, .2, 1); }
-.js .reveal.in { opacity: 1; transform: none; }
-.js .hero > * { animation: rise .8s cubic-bezier(.2, .7, .2, 1) both; }
-.js .hero > *:nth-child(2) { animation-delay: .06s; }
-.js .hero > *:nth-child(3) { animation-delay: .14s; }
-.js .hero > *:nth-child(4) { animation-delay: .22s; }
-.js .hero > *:nth-child(5) { animation-delay: .28s; }
-.js .hero > *:nth-child(6) { animation-delay: .34s; }
-.js .hero > *:nth-child(7) { animation-delay: .4s; }
-.js .hero > *:nth-child(8) { animation-delay: .48s; }
-@keyframes rise { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
-@media (prefers-reduced-motion: reduce) {
-  .js .reveal, .js .hero > * { opacity: 1 !important; transform: none !important; animation: none !important; transition: none !important; }
-}
+/* content is always visible; no scroll-triggered hiding */
 
 @media (max-width: 560px) {
   body { font-size: 16px; }
@@ -489,3 +475,106 @@ figcaption { font-size: 14px; }
 .eq { margin-top: 10px; }
 .eqbadge { display: inline-flex; align-items: center; gap: 6px; font-size: 14px; color: var(--accent-ink); background: var(--accent-soft); padding: 6px 14px; border-radius: 999px; font-weight: 500; }
 .eqbadge b { color: var(--accent); font-weight: 800; font-size: 16px; }
+
+/* ================= readability pass: larger type everywhere ================= */
+:root { --measure: 880px; --wide: 1180px; }
+body { font-size: 18px; line-height: 1.7; }
+p { margin-bottom: 18px; }
+.lede { font-size: 20.5px; line-height: 1.6; }
+.kicker { font-size: 13.5px; }
+h2 { font-size: clamp(34px, 4.6vw, 50px); margin-bottom: 20px; }
+
+.authors { font-size: clamp(18px, 2.1vw, 21px); }
+.affil { font-size: 16.5px; }
+.eqbadge { font-size: 16px; padding: 7px 16px; }
+.btn { font-size: 16.5px; padding: 13px 22px; }
+.btn svg { width: 18px; height: 18px; }
+.stat .num { font-size: clamp(40px, 4.8vw, 56px); }
+.stat .lbl { font-size: 16px; line-height: 1.5; }
+figcaption { font-size: 16.5px; line-height: 1.6; max-width: 960px; }
+
+.abstract p { font-size: 19px; line-height: 1.8; text-align: left; hyphens: manual; color: var(--ink); }
+
+.role { padding: 24px; }
+.role .tag { font-size: 23px; }
+.role p { font-size: 17.5px; line-height: 1.6; }
+.variant { padding: 24px; }
+.variant h4 { font-size: 23px; }
+.variant .what { font-size: 17px; margin-bottom: 14px; }
+.chip { font-size: 14px; padding: 7px 11px; }
+
+.tabs button { font-size: 16.5px; padding: 12px 18px; }
+.panel { grid-template-columns: minmax(0, 300px) minmax(0, 1fr); gap: 28px; }
+.verdict .kind { font-size: 13px; }
+.verdict h4 { font-size: 25px; }
+.verdict p { font-size: 17.5px; line-height: 1.6; }
+.legend { font-size: 15px; }
+.artifact { font-size: 15px; line-height: 1.7; padding: 22px 24px; max-height: 560px; }
+.agent { padding: 14px 18px; }
+.agent .nm { font-size: 14.5px; }
+.agent p { font-size: 16px; line-height: 1.65; }
+
+.toolbar .note { font-size: 15px; }
+.seg button { font-size: 16px; padding: 11px 18px; }
+#main-table { font-size: 19px; }
+#main-table th, #main-table td { padding: 16px 24px; }
+#main-table thead th { font-size: 14px; }
+#main-table thead tr.grp th { font-size: 17px; }
+#main-table td:first-child { font-weight: 500; }
+
+.defer { padding: 32px; gap: 32px; }
+.defer .label { font-size: 13.5px; margin-bottom: 10px; }
+.ops button { font-size: 17px; padding: 14px 16px; }
+.ops button .p, .ops button .c { font-size: 15px; }
+.readout .r { padding: 18px 20px; }
+.readout .r .v { font-size: 52px; }
+.readout .r .k { font-size: 15.5px; line-height: 1.45; }
+.defer .sentence { font-size: 19px; line-height: 1.5; }
+.defer .fine { font-size: 14.5px; }
+.chart .axis text { font-size: 15px; }
+.chart .axis text.lab { font-size: 16px; }
+.chart .mark-lab { font-size: 17px; }
+.chart .tip text { font-size: 15px; }
+.clegend { font-size: 16px; }
+.calib { padding: 30px 32px; }
+.calib-head h3 { font-size: 24px; }
+.calib-head p { font-size: 16.5px; }
+.calib-grid .ctitle { font-size: 17px; }
+
+.check { padding: 26px; gap: 14px; }
+.check .tag { font-size: 13.5px; }
+.check h4 { font-size: 23px; }
+.cmp { gap: 12px; }
+.cmp .row { grid-template-columns: 180px minmax(0, 1fr) 56px; font-size: 16px; }
+.cmp .row b { font-size: 16px; }
+.cmp .track { height: 12px; border-radius: 6px; }
+.check .src { font-size: 14.5px; }
+.notice { font-size: 17.5px; padding: 18px 22px; }
+
+.bib pre { font-size: 15.5px; line-height: 1.65; padding: 24px 26px; }
+.bib .copy { font-size: 14px; padding: 9px 15px; }
+footer { font-size: 16px; }
+.topnav .inner { height: 62px; }
+.topnav .sections a { font-size: 15.5px; padding: 9px 12px; }
+.topnav .mini a { font-size: 14px; padding: 9px 14px; }
+.topnav .brand { font-size: 20px; }
+
+@media (max-width: 860px) {
+  .panel { grid-template-columns: 1fr; }
+}
+@media (max-width: 560px) {
+  body { font-size: 17px; }
+  .lede { font-size: 18.5px; }
+  .abstract p { font-size: 17.5px; }
+  #main-table { font-size: 17px; }
+  #main-table th, #main-table td { padding: 13px 14px; }
+  .defer { padding: 20px; }
+  .readout .r .v { font-size: 42px; }
+  .cmp .row { grid-template-columns: 128px minmax(0, 1fr) 48px; font-size: 15px; }
+  .check { padding: 20px; }
+  .stat .lbl { font-size: 15px; }
+}
+/* equal contribution: subtle */
+.authors sup .eqm { color: var(--accent); font-weight: 600; font-size: 1em; }
+.eq { margin-top: 6px; font-size: 15px; color: var(--muted); }
+.eq .eqm { color: var(--accent); font-weight: 600; margin-right: 2px; }

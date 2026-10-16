@@ -49,17 +49,8 @@
     map.forEach((_, id) => { const s = document.getElementById(id); if (s) spy.observe(s); });
   }
 
-  /* ---------- reveal on scroll + bars ---------- */
-  const fillBars = (root) => $$('.cmp .track i', root).forEach(i => { i.style.width = (parseFloat(i.dataset.w) || 0) + '%'; });
-  if ('IntersectionObserver' in window && !reduce) {
-    const io = new IntersectionObserver((es) => {
-      es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); fillBars(e.target); io.unobserve(e.target); } });
-    }, { rootMargin: '0px 0px -8% 0px', threshold: 0.06 });
-    $$('.reveal').forEach(el => io.observe(el));
-  } else {
-    $$('.reveal').forEach(el => el.classList.add('in'));
-    fillBars(document);
-  }
+  /* ---------- bar widths (no scroll-triggered hiding) ---------- */
+  $$('.cmp .track i').forEach(i => { i.style.width = (parseFloat(i.dataset.w) || 0) + '%'; });
 
   /* ---------- highlight drug names inside artifacts ---------- */
   const drugs = /\b(carbamazepine|clobazam|clonazepam|ethosuximide|lamotrigine|levetiracetam|phenobarbital|phenytoin|topiramate|valproate|oxcarbazepine|keppra|depakote)\b/gi;
