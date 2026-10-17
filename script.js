@@ -318,42 +318,95 @@
     redraw.push(draw);
   }
 
-  /* ---------- how it works: scroll-driven on desktop, autoplay loop on phones ---------- */
+  /* ---------- how it works: a continuously moving loop (particles, camera, timed steps) ---------- */
   const hiw = $('#hiw');
   if (hiw) {
     const steps = $$('.hiw-step', hiw), dots = $$('.hiw-dots i', hiw), cap = $('#hiw-cap');
-    const N = steps.length;
-    let cur = -1;
+    const svgEl = $('.hiw-svg', hiw), N = steps.length;
+    const DUR = [5200, 5200, 5600, 5400, 7000, 7800];
+    const FULL = [0, 0, 760, 520];
+    const CAM_PHONE = [[190, 165, 420], [300, 112, 400], [540, 140, 420], [600, 236, 360], [340, 262, 650], [455, 380, 590]];
+    const CAM_DESK = [[230, 160, 600], [330, 135, 600], [470, 150, 600], [560, 225, 560], [380, 240, 720], [390, 410, 660]];
+    const isPhone = () => !window.matchMedia('(min-width: 901px)').matches;
+    let cur = -1, elapsed = 0, playing = !reduce, onScreen = false, last = 0, raf = 0;
+
+    // camera
+    let vb = FULL.slice(), cam = null;
+    const setVB = (bx) => { vb = bx; svgEl.setAttribute('viewBox', bx.map(v => v.toFixed(1)).join(' ')); };
+    const camTarget = () => {
+      const phone = isPhone();
+      if (!phone) return FULL.slice(); // desktop: whole diagram stays in view; motion comes from particles and staging
+      const [cx, cy, w] = (phone ? CAM_PHONE : CAM_DESK)[cur];
+      const h = phone ? w * 0.8 : w * 520 / 760;
+      let x = cx - w / 2, y = cy - h / 2;
+      if (!phone) { x = Math.max(0, Math.min(760 - w, x)); y = Math.max(0, Math.min(520 - h, y)); }
+      return [x, y, w, h];
+    };
+    const frame = () => { const t = camTarget(); if (reduce) { setVB(t); cam = null; } else cam = { from: vb.slice(), to: t, t0: performance.now(), d: 1500 }; };
+
+    // particles along the active arrows
+    const flow = el('g', { class: 'flow' }, svgEl);
+    let lanes = [];
+    const buildLanes = () => {
+      flow.innerHTML = '';
+      lanes = $$('.e', svgEl).filter(p => (p.dataset.s || '').split(' ').includes(String(cur))).map(p => {
+        const len = p.getTotalLength();
+        const n = Math.max(1, Math.round(len / 45));
+        return { p, len, dots: Array.from({ length: n }, () => el('circle', { r: 3.6, class: 'pkt' }, flow)) };
+      });
+    };
+
+    // caption crossfade
+    const setCaption = (i) => {
+      cap.classList.add('fade');
+      setTimeout(() => {
+        cap.innerHTML = `<h3>${i + 1}. ${steps[i].querySelector('h3').textContent}</h3><p>${steps[i].querySelector('p').innerHTML}</p>`;
+        cap.classList.remove('fade');
+      }, cur === -1 ? 0 : 220);
+    };
+
     const setStage = (i) => {
-      if (i === cur) return; cur = i;
+      i = (i + N) % N;
+      if (i === cur) return;
+      setCaption(i);
+      cur = i; elapsed = 0;
       hiw.dataset.stage = i;
       for (let k = 0; k < N; k++) hiw.classList.toggle('ge' + k, i >= k);
-      steps.forEach((s, k) => s.classList.toggle('on', k === i));
-      dots.forEach((d, k) => { d.classList.toggle('on', k === i); d.classList.toggle('done', k < i); });
-      cap.innerHTML = `<h3>${i + 1}. ${steps[i].querySelector('h3').textContent}</h3><p>${steps[i].querySelector('p').innerHTML}</p>`;
+      dots.forEach((d, k) => { d.classList.toggle('on', k === i); d.classList.toggle('done', k < i); d.style.setProperty('--p', '0%'); });
+      buildLanes();
       frame();
     };
-    // phones: pan/zoom the diagram to the active part so text stays legible
-    const svgEl = $('.hiw-svg', hiw);
-    const FULL = [0, 0, 760, 520];
-    const CAM = [[190, 165, 420], [300, 112, 400], [540, 140, 420], [600, 236, 360], [340, 262, 650], [455, 380, 590]];
-    let vb = FULL.slice(), camRaf = 0;
-    const setVB = (b) => { vb = b; svgEl.setAttribute('viewBox', b.map(v => v.toFixed(1)).join(' ')); };
-    function frame() {
-      if (!svgEl) return;
-      const phone = !window.matchMedia('(min-width: 901px)').matches;
-      let target = FULL;
-      if (phone) { const [cx, cy, w] = CAM[cur]; const h = w * 0.8; target = [cx - w / 2, cy - h / 2, w, h]; }
-      cancelAnimationFrame(camRaf);
-      if (reduce) { setVB(target); return; }
-      const from = vb.slice(), t0 = performance.now(), D = 900;
-      const step = (now) => {
-        const t = Math.min(1, (now - t0) / D), e = t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
-        setVB(from.map((v, k) => v + (target[k] - v) * e));
-        if (t < 1) camRaf = requestAnimationFrame(step);
-      };
-      camRaf = requestAnimationFrame(step);
-    }
+
+    const loop = (now) => {
+      const dt = last ? Math.min(100, now - last) : 16; last = now;
+      // camera
+      if (cam) {
+        const t = Math.min(1, (now - cam.t0) / cam.d), e = t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+        setVB(cam.from.map((v, k) => v + (cam.to[k] - v) * e));
+        if (t >= 1) cam = null;
+      }
+      // particles
+      const sec = now / 1000;
+      lanes.forEach(L => L.dots.forEach((c, k) => {
+        const u = ((sec * 70) / L.len + k / L.dots.length) % 1;
+        const pt = L.p.getPointAtLength(u * L.len);
+        c.setAttribute('cx', pt.x); c.setAttribute('cy', pt.y);
+        c.setAttribute('opacity', Math.min(1, Math.sin(u * Math.PI) * 1.6).toFixed(2));
+      }));
+      // timeline
+      if (playing) {
+        elapsed += dt;
+        const d = dots[cur]; if (d) d.style.setProperty('--p', Math.min(100, elapsed / DUR[cur] * 100).toFixed(1) + '%');
+        if (elapsed >= DUR[cur]) {
+          const next = (cur + 1) % N;
+          if (next === 0) setMode(hiw.classList.contains('mode-multi') ? 'single' : 'multi');
+          setStage(next);
+        }
+      }
+      if (onScreen) raf = requestAnimationFrame(loop); else { raf = 0; last = 0; }
+    };
+    const run = () => { if (!raf && onScreen && !reduce) raf = requestAnimationFrame(loop); };
+
     const setMode = (m) => {
       hiw.classList.toggle('mode-single', m === 'single'); hiw.classList.toggle('mode-multi', m === 'multi');
       $$('[data-mode]', hiw).forEach(b => b.setAttribute('aria-pressed', b.dataset.mode === m));
@@ -362,28 +415,19 @@
     setMode('multi');
     setStage(0);
 
-    const desktop = window.matchMedia('(min-width: 901px)');
-    // plays like a short video on every screen
-    let playing = !reduce, timer = 0, onScreen = false;
     const play = $('#hiw-play');
-    const tick = () => {
-      clearTimeout(timer);
-      play.textContent = playing ? 'Pause' : 'Play';
-      if (!playing || !onScreen) return;
-      timer = setTimeout(() => {
-        setStage((cur + 1) % N);
-        if (cur === 0) setMode(hiw.classList.contains('mode-multi') ? 'single' : 'multi');
-        tick();
-      }, cur === N - 1 ? 5200 : 3800);
-    };
-    const manual = (i) => { playing = false; setStage((i + N) % N); tick(); };
+    const syncPlay = () => { play.textContent = playing ? 'Pause' : 'Play'; hiw.classList.toggle('paused', !playing); };
+    const manual = (i) => { playing = false; syncPlay(); setStage(i); };
     $('#hiw-prev').addEventListener('click', () => manual(cur - 1));
     $('#hiw-next').addEventListener('click', () => manual(cur + 1));
-    play.addEventListener('click', () => { playing = !playing; tick(); });
+    dots.forEach((d, k) => d.addEventListener('click', () => manual(k)));
+    play.addEventListener('click', () => { playing = !playing; syncPlay(); run(); });
+    syncPlay();
     if ('IntersectionObserver' in window) {
-      new IntersectionObserver(([e]) => { onScreen = e.isIntersecting; tick(); }, { threshold: 0.35 }).observe($('.hiw-sticky', hiw));
-    }
-    desktop.addEventListener('change', () => { frame(); tick(); });
+      new IntersectionObserver(([e]) => { onScreen = e.isIntersecting; run(); }, { threshold: 0.3 }).observe($('.hiw-sticky', hiw));
+    } else { onScreen = true; run(); }
+    window.matchMedia('(min-width: 901px)').addEventListener('change', frame);
+    if (reduce) frame();
   }
 
   /* ---------- map: Africa → Uganda zoom ---------- */

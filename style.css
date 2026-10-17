@@ -857,3 +857,51 @@ footer { font-size: 16px; }
 .agent .nm, .spec-n { overflow-wrap: anywhere; } .artifact, .agent { min-width: 0; }
 @media (max-width: 860px) { .panel { grid-template-columns: minmax(0, 1fr); } }
 .hiw-svg { overflow: hidden; }
+
+/* ===== movie feel: particles, progress, staging ===== */
+.hiw-svg .pkt { fill: var(--accent); }
+.hiw-svg .e { transition: stroke .6s ease; }
+.hiw[data-stage] .hiw-svg [data-s] { transition: opacity .7s ease; }
+/* dashes behave like a scrub bar */
+.hiw-dots i { position: relative; overflow: hidden; cursor: pointer; height: 6px; border-radius: 3px; background: var(--hair); }
+.hiw-dots i.on { background: var(--hair); }
+.hiw-dots i::after { content: ""; position: absolute; inset: 0 auto 0 0; width: 0; background: var(--accent); border-radius: 3px; }
+.hiw-dots i.on::after { width: var(--p, 0%); }
+.hiw-dots i.done::after { width: 100%; background: var(--teal); }
+.hiw.paused .hiw-dots i.on::after { background: var(--hair-2); }
+/* caption crossfade */
+.hiw-cap { transition: opacity .22s ease, transform .22s ease; }
+.hiw-cap.fade { opacity: 0; transform: translateY(4px); }
+/* step 2: regimens appear one by one */
+.hiw-svg .cands rect, .hiw-svg .cands text { opacity: 0; transition: opacity .45s ease; }
+.hiw.ge1 .hiw-svg .cands rect, .hiw.ge1 .hiw-svg .cands text { opacity: 1; }
+.hiw.ge1 .hiw-svg .cands :is(rect, text):nth-of-type(1) { transition-delay: .5s; }
+.hiw.ge1 .hiw-svg .cands :is(rect, text):nth-of-type(2) { transition-delay: 1.1s; }
+.hiw.ge1 .hiw-svg .cands :is(rect, text):nth-of-type(3) { transition-delay: 1.7s; }
+/* step 3: the prescription drops in */
+.hiw-svg .rx { transform: translateY(-16px); transition: transform .8s cubic-bezier(.2,.7,.2,1) .3s, opacity .7s; }
+.hiw.ge2 .hiw-svg .rx { transform: none; }
+/* step 4: lessons arrive slowly */
+.hiw.ge3 .hiw-svg .c1 { transition-delay: .3s } .hiw.ge3 .hiw-svg .c2 { transition-delay: .7s } .hiw.ge3 .hiw-svg .c3 { transition-delay: 1.1s }
+.hiw.ge3 .hiw-svg .c4 { transition-delay: 1.5s } .hiw.ge3 .hiw-svg .c5 { transition-delay: 1.9s } .hiw.ge3 .hiw-svg .c6 { transition-delay: 2.3s }
+/* step 5: match → quorum → memory grows */
+.hiw[data-stage="4"] .hiw-svg .card rect { transition-delay: .5s; }
+.hiw[data-stage="4"] .hiw-svg .quorum { transition-delay: 1.5s; }
+.hiw.ge4 .hiw-svg .mem .plus { transition-delay: 2.6s; }
+/* step 6: chips light up, bars grow, recommend pulses */
+.hiw-svg .chips rect { transition: fill .4s ease, stroke .4s ease; }
+.hiw:not([data-stage="5"]) .hiw-svg .chips rect { fill: #fff; }
+.hiw[data-stage="5"] .hiw-svg .chips rect:nth-of-type(2) { transition-delay: .2s } .hiw[data-stage="5"] .hiw-svg .chips rect:nth-of-type(3) { transition-delay: .4s }
+.hiw[data-stage="5"] .hiw-svg .chips rect:nth-of-type(4) { transition-delay: .6s } .hiw[data-stage="5"] .hiw-svg .chips rect:nth-of-type(5) { transition-delay: .8s }
+.hiw[data-stage="5"] .hiw-svg .bars :is(.b1, .b2, .b3) { animation-delay: 1.3s; animation-duration: 1.4s; }
+.hiw-svg .pill.ok { transform-box: fill-box; transform-origin: center; }
+.hiw[data-stage="5"] .hiw-svg .pill.ok { animation: okpulse 1.4s ease 3s 2; }
+@keyframes okpulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.07); } }
+@media (prefers-reduced-motion: reduce) {
+  .hiw .hiw-svg * { transition-delay: 0s !important; animation: none !important; }
+  .hiw-svg .pkt { display: none; }
+}
+/* fixed caption height so the page never jumps between steps */
+.hiw-cap { height: 150px; min-height: 0; overflow: hidden; }
+@media (max-width: 900px) { .hiw-cap { height: 236px; } }
+@media (max-width: 380px) { .hiw-cap { height: 270px; } }
