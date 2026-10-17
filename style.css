@@ -956,3 +956,7 @@ footer { font-size: 16px; }
   .tseg .lab { visibility: hidden; overflow: visible; text-overflow: clip; font-size: 12px; }
   .tseg.on .lab { visibility: visible; }
 }
+/* equal contribution: outlined pill, ink text, small accent asterisk */
+.eq { margin: 10px 0 0; }
+.eq-pill { display: inline-flex; align-items: center; gap: 6px; padding: 5px 13px; border: 1px solid var(--hair-2); border-radius: 999px; font: 500 15px/1.2 var(--body); color: var(--ink); background: transparent; }
+.eq-pill .eqm { color: var(--accent); font-weight: 700; margin: 0; }
