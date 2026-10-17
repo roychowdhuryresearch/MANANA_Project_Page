@@ -905,3 +905,54 @@ footer { font-size: 16px; }
 .hiw-cap { height: 150px; min-height: 0; overflow: hidden; }
 @media (max-width: 900px) { .hiw-cap { height: 236px; } }
 @media (max-width: 380px) { .hiw-cap { height: 270px; } }
+
+/* ===== video player bar ===== */
+.player { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 16px; margin: 18px auto 0; max-width: 980px; padding: 12px 16px; border: 1px solid var(--hair); border-radius: 16px; background: #fbfaf7; }
+.pp { width: 46px; height: 46px; border-radius: 50%; border: 0; background: var(--ink); color: #fff; display: grid; place-items: center; cursor: pointer; transition: transform .15s, background .2s; }
+.pp:hover { transform: scale(1.06); background: var(--accent); }
+.pp svg { width: 18px; height: 18px; fill: currentColor; }
+.pp .i-play { display: none; margin-left: 2px; }
+.hiw.paused .pp .i-play { display: block; } .hiw.paused .pp .i-pause { display: none; }
+.tl { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 6px; cursor: pointer; touch-action: none; user-select: none; outline: none; padding: 6px 0; }
+.tl:focus-visible { box-shadow: 0 0 0 3px var(--accent-soft); border-radius: 10px; }
+.tseg { all: unset; display: flex; flex-direction: column; gap: 7px; cursor: pointer; min-width: 0; }
+.tseg .bar { position: relative; height: 8px; border-radius: 4px; background: var(--hair); overflow: hidden; }
+.tseg .bar i { position: absolute; inset: 0 auto 0 0; width: var(--p, 0%); background: var(--accent); border-radius: 4px; }
+.tseg.done .bar i { background: var(--teal); }
+.hiw.paused .tseg.on .bar i { background: var(--hair-2); }
+.tseg .lab { font: 500 13.5px/1 var(--body); color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: center; }
+.tseg.on .lab { color: var(--ink); font-weight: 650; }
+.tseg:hover .bar { background: var(--hair-2); }
+.hiw.scrubbing .tseg .bar i { transition: none; }
+.cnt { font: 600 14px var(--mono); color: var(--ink); min-width: 44px; text-align: right; }
+.hiw-svg { cursor: pointer; }
+.hiw-cap { margin-top: 14px; height: 132px; }
+@media (max-width: 900px) {
+  .player { gap: 10px; padding: 10px 10px; }
+  .pp { width: 40px; height: 40px; }
+  .tl { gap: 4px; }
+  .tseg .lab { font-size: 11px; }
+  .cnt { display: none; }
+  .hiw-cap { height: 236px; }
+}
+@media (max-width: 380px) { .tseg .lab { display: none; } .hiw-cap { height: 270px; } }
+
+/* faster in-step sequencing to match the quicker pace */
+.hiw.ge1 .hiw-svg .cands :is(rect, text):nth-of-type(1) { transition-delay: .25s; }
+.hiw.ge1 .hiw-svg .cands :is(rect, text):nth-of-type(2) { transition-delay: .55s; }
+.hiw.ge1 .hiw-svg .cands :is(rect, text):nth-of-type(3) { transition-delay: .85s; }
+.hiw-svg .rx { transition: transform .6s cubic-bezier(.2,.7,.2,1) .15s, opacity .5s; }
+.hiw.ge3 .hiw-svg .c1 { transition-delay: .15s } .hiw.ge3 .hiw-svg .c2 { transition-delay: .4s } .hiw.ge3 .hiw-svg .c3 { transition-delay: .65s }
+.hiw.ge3 .hiw-svg .c4 { transition-delay: .9s } .hiw.ge3 .hiw-svg .c5 { transition-delay: 1.15s } .hiw.ge3 .hiw-svg .c6 { transition-delay: 1.4s }
+.hiw[data-stage="4"] .hiw-svg .card rect { transition-delay: .3s; }
+.hiw[data-stage="4"] .hiw-svg .quorum { transition-delay: .9s; }
+.hiw.ge4 .hiw-svg .mem .plus { transition-delay: 1.5s; }
+.hiw[data-stage="5"] .hiw-svg .chips rect:nth-of-type(2) { transition-delay: .1s } .hiw[data-stage="5"] .hiw-svg .chips rect:nth-of-type(3) { transition-delay: .2s }
+.hiw[data-stage="5"] .hiw-svg .chips rect:nth-of-type(4) { transition-delay: .3s } .hiw[data-stage="5"] .hiw-svg .chips rect:nth-of-type(5) { transition-delay: .4s }
+.hiw[data-stage="5"] .hiw-svg .bars :is(.b1, .b2, .b3) { animation-delay: .7s; animation-duration: 1s; }
+.hiw[data-stage="5"] .hiw-svg .pill.ok { animation: okpulse 1s ease 1.9s 2; }
+.hiw[data-stage] .hiw-svg [data-s] { transition: opacity .45s ease; }
+@media (max-width: 900px) {
+  .tseg .lab { visibility: hidden; overflow: visible; text-overflow: clip; font-size: 12px; }
+  .tseg.on .lab { visibility: visible; }
+}

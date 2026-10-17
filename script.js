@@ -321,9 +321,9 @@
   /* ---------- how it works: a continuously moving loop (particles, camera, timed steps) ---------- */
   const hiw = $('#hiw');
   if (hiw) {
-    const steps = $$('.hiw-step', hiw), dots = $$('.hiw-dots i', hiw), cap = $('#hiw-cap');
+    const steps = $$('.hiw-step', hiw), segs = $$('.tseg', hiw), cap = $('#hiw-cap'), tl = $('#hiw-tl'), cnt = $('#hiw-cnt');
     const svgEl = $('.hiw-svg', hiw), N = steps.length;
-    const DUR = [5200, 5200, 5600, 5400, 7000, 7800];
+    const DUR = [3000, 3200, 3600, 3400, 4400, 5000];
     const FULL = [0, 0, 760, 520];
     const CAM_PHONE = [[190, 165, 420], [300, 112, 400], [540, 140, 420], [600, 236, 360], [340, 262, 650], [455, 380, 590]];
     const CAM_DESK = [[230, 160, 600], [330, 135, 600], [470, 150, 600], [560, 225, 560], [380, 240, 720], [390, 410, 660]];
@@ -365,16 +365,29 @@
       }, cur === -1 ? 0 : 220);
     };
 
-    const setStage = (i) => {
+    let dragging = false;
+    const paint = () => {
+      segs.forEach((g, k) => {
+        const f = k < cur ? 100 : k > cur ? 0 : Math.min(100, elapsed / DUR[cur] * 100);
+        g.style.setProperty('--p', f.toFixed(1) + '%');
+        g.classList.toggle('on', k === cur); g.classList.toggle('done', k < cur);
+      });
+    };
+    const setStage = (i, frac = 0) => {
       i = (i + N) % N;
-      if (i === cur) return;
-      setCaption(i);
-      cur = i; elapsed = 0;
-      hiw.dataset.stage = i;
-      for (let k = 0; k < N; k++) hiw.classList.toggle('ge' + k, i >= k);
-      dots.forEach((d, k) => { d.classList.toggle('on', k === i); d.classList.toggle('done', k < i); d.style.setProperty('--p', '0%'); });
-      buildLanes();
-      frame();
+      if (i !== cur) {
+        setCaption(i);
+        cur = i;
+        hiw.dataset.stage = i;
+        for (let k = 0; k < N; k++) hiw.classList.toggle('ge' + k, i >= k);
+        cnt.textContent = `${i + 1} / ${N}`;
+        tl.setAttribute('aria-valuenow', i + 1);
+        tl.setAttribute('aria-valuetext', `Step ${i + 1}: ${steps[i].querySelector('h3').textContent}`);
+        buildLanes();
+        frame();
+      }
+      elapsed = frac * DUR[cur];
+      paint();
     };
 
     const loop = (now) => {
@@ -388,15 +401,15 @@
       // particles
       const sec = now / 1000;
       lanes.forEach(L => L.dots.forEach((c, k) => {
-        const u = ((sec * 70) / L.len + k / L.dots.length) % 1;
+        const u = ((sec * 110) / L.len + k / L.dots.length) % 1;
         const pt = L.p.getPointAtLength(u * L.len);
         c.setAttribute('cx', pt.x); c.setAttribute('cy', pt.y);
         c.setAttribute('opacity', Math.min(1, Math.sin(u * Math.PI) * 1.6).toFixed(2));
       }));
       // timeline
-      if (playing) {
+      if (playing && !dragging) {
         elapsed += dt;
-        const d = dots[cur]; if (d) d.style.setProperty('--p', Math.min(100, elapsed / DUR[cur] * 100).toFixed(1) + '%');
+        paint();
         if (elapsed >= DUR[cur]) {
           const next = (cur + 1) % N;
           if (next === 0) setMode(hiw.classList.contains('mode-multi') ? 'single' : 'multi');
@@ -416,12 +429,25 @@
     setStage(0);
 
     const play = $('#hiw-play');
-    const syncPlay = () => { play.textContent = playing ? 'Pause' : 'Play'; hiw.classList.toggle('paused', !playing); };
-    const manual = (i) => { playing = false; syncPlay(); setStage(i); };
-    $('#hiw-prev').addEventListener('click', () => manual(cur - 1));
-    $('#hiw-next').addEventListener('click', () => manual(cur + 1));
-    dots.forEach((d, k) => d.addEventListener('click', () => manual(k)));
-    play.addEventListener('click', () => { playing = !playing; syncPlay(); run(); });
+    const syncPlay = () => { play.setAttribute('aria-label', playing ? 'Pause' : 'Play'); hiw.classList.toggle('paused', !playing); };
+    const toggle = () => { playing = !playing; syncPlay(); run(); };
+    play.addEventListener('click', toggle);
+    // timeline: click or drag anywhere to move; playback continues from there
+    const seekAt = (clientX) => {
+      const r = tl.getBoundingClientRect(), x = Math.max(0, Math.min(r.width - 0.01, clientX - r.left));
+      const segW = r.width / N, i = Math.floor(x / segW);
+      setStage(i, (x - i * segW) / segW);
+    };
+    tl.addEventListener('pointerdown', (e) => { dragging = true; tl.setPointerCapture(e.pointerId); hiw.classList.add('scrubbing'); seekAt(e.clientX); e.preventDefault(); });
+    tl.addEventListener('pointermove', (e) => { if (dragging) seekAt(e.clientX); });
+    const endDrag = () => { dragging = false; hiw.classList.remove('scrubbing'); };
+    tl.addEventListener('pointerup', endDrag); tl.addEventListener('pointercancel', endDrag);
+    tl.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight') { setStage(cur + 1); e.preventDefault(); }
+      else if (e.key === 'ArrowLeft') { setStage(cur - 1); e.preventDefault(); }
+      else if (e.key === ' ' || e.key === 'Enter') { toggle(); e.preventDefault(); }
+    });
+    svgEl.addEventListener('click', toggle); // click the diagram to pause/play, like a video
     syncPlay();
     if ('IntersectionObserver' in window) {
       new IntersectionObserver(([e]) => { onScreen = e.isIntersecting; run(); }, { threshold: 0.3 }).observe($('.hiw-sticky', hiw));
