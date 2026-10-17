@@ -960,3 +960,6 @@ footer { font-size: 16px; }
 .eq { margin: 10px 0 0; }
 .eq-pill { display: inline-flex; align-items: center; gap: 6px; padding: 5px 13px; border: 1px solid var(--hair-2); border-radius: 999px; font: 500 15px/1.2 var(--body); color: var(--ink); background: transparent; }
 .eq-pill .eqm { color: var(--accent); font-weight: 700; margin: 0; }
+/* co-first authors: a clearly visible star after each name */
+.authors .eqs { color: var(--accent); font-weight: 700; font-size: .78em; margin-left: 3px; position: relative; top: -0.35em; }
+.eq-pill .eqm { font-size: 1.05em; }
