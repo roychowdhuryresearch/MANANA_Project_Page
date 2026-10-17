@@ -963,3 +963,5 @@ footer { font-size: 16px; }
 /* co-first authors: a clearly visible star after each name */
 .authors .eqs { color: var(--accent); font-weight: 700; font-size: .78em; margin-left: 3px; position: relative; top: -0.35em; }
 .eq-pill .eqm { font-size: 1.05em; }
+.authors .eqs { font-size: .66em; top: -0.45em; margin-left: 2px; }
+.eq-pill .eqm { font-size: .92em; }
