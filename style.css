@@ -965,3 +965,7 @@ footer { font-size: 16px; }
 .eq-pill .eqm { font-size: 1.05em; }
 .authors .eqs { font-size: .66em; top: -0.45em; margin-left: 2px; }
 .eq-pill .eqm { font-size: .92em; }
+
+/* ===== TL;DR above the abstract ===== */
+.abstract p.tldr { margin: 0 0 40px; padding: 16px 20px; border-left: 3px solid var(--accent); background: var(--accent-soft); border-radius: 0 10px 10px 0; text-align: left; font-size: 16.5px; }
+.abstract p.tldr::first-letter { all: unset; }
