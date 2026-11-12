@@ -663,17 +663,24 @@ any information that is not needed for the decision.
 <script src="script.js?v=34" defer></script>
 <!-- Visit log (Kartik's Cloudflare Worker, same as skartik04.github.io): page, referrer, rough location from the
      network, time on page, headings reached, clicks. No cookies, no IPs stored.
-     Visiting this page with #toggle-stats turns counting off/on for this browser. -->
+     Visiting this page with #stats-off stops counting this browser; #stats-on undoes it. -->
     <script>
       (() => {
         const SKIP = "kstats-skip";
         try {
-          if (location.hash === "#toggle-stats") {
-            const off = !localStorage.getItem(SKIP);
-            if (off) localStorage.setItem(SKIP, "1"); else localStorage.removeItem(SKIP);
-            history.replaceState(null, "", location.pathname + location.search);
-            alert(off ? "Your visits are no longer counted on this browser." : "Counting is back on for this browser.");
-          }
+          // #stats-off (or the old #toggle-stats) always turns counting off; only #stats-on turns it back on.
+          const optOut = () => {
+            const h = location.hash;
+            if (h === "#stats-off" || h === "#toggle-stats" || h === "#stats-on") {
+              const off = h !== "#stats-on";
+              if (off) { localStorage.setItem(SKIP, "1"); }
+              else { localStorage.removeItem(SKIP); }
+              history.replaceState(null, "", location.pathname + location.search);
+              alert(off ? "Your visits are not counted on this browser." : "Counting is back on for this browser.");
+            }
+          };
+          optOut();
+          addEventListener("hashchange", optOut);
           if (localStorage.getItem(SKIP) || /^(localhost|127\.)/.test(location.hostname)) return;
         } catch (e) {}
 
